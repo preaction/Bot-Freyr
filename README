@@ -1,15 +1,15 @@
 NAME
-    Freyr - Write a sentence about what it does
+    Freyr - IRC bot with multi-network and web API
 
 VERSION
     version 0.001
 
 SYNOPSIS
+        # TODO
+
 DESCRIPTION
-ARGUMENTS
-OPTIONS
-ATTRIBUTES
-METHODS
+    Freyr is an IRC bot designed for multiple networks and a web interface.
+
 AUTHOR
     Doug Bell <preaction@cpan.org>
 

@@ -3,14 +3,14 @@
 use strict;
 use warnings;
 
-
+use 5.020;
 
 use ExtUtils::MakeMaker ;
 
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "Write a sentence about what it does",
+  "ABSTRACT" => "IRC bot with multi-network and web API",
   "AUTHOR" => "Doug Bell <preaction\@cpan.org>",
   "BUILD_REQUIRES" => {
     "Module::Build" => "0.28"
@@ -27,11 +27,16 @@ my %WriteMakefileArgs = (
     "DBM::Deep" => 0,
     "Import::Base" => "0.005",
     "Mojo::IRC" => 0,
-    "Mojolicious" => 0
+    "Mojolicious" => 0,
+    "experimental" => 0,
+    "strict" => 0,
+    "warnings" => 0
   },
   "TEST_REQUIRES" => {
     "Test::Compile" => 0,
-    "Test::Most" => 0
+    "Test::Deep" => 0,
+    "Test::Differences" => 0,
+    "Test::More" => 0
   },
   "VERSION" => "0.001",
   "test" => {
@@ -47,7 +52,12 @@ my %FallbackPrereqs = (
   "Mojo::IRC" => 0,
   "Mojolicious" => 0,
   "Test::Compile" => 0,
-  "Test::Most" => 0
+  "Test::Deep" => 0,
+  "Test::Differences" => 0,
+  "Test::More" => 0,
+  "experimental" => 0,
+  "strict" => 0,
+  "warnings" => 0
 );
 
 

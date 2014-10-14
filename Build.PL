@@ -14,7 +14,7 @@ my %module_build_args = (
     "ExtUtils::MakeMaker" => 0,
     "Module::Build" => "0.28"
   },
-  "dist_abstract" => "Write a sentence about what it does",
+  "dist_abstract" => "IRC bot with multi-network and web API",
   "dist_author" => [
     "Doug Bell <preaction\@cpan.org>"
   ],
@@ -28,12 +28,18 @@ my %module_build_args = (
     "DBM::Deep" => 0,
     "Import::Base" => "0.005",
     "Mojo::IRC" => 0,
-    "Mojolicious" => 0
+    "Mojolicious" => 0,
+    "experimental" => 0,
+    "perl" => "5.020",
+    "strict" => 0,
+    "warnings" => 0
   },
   "script_files" => [],
   "test_requires" => {
     "Test::Compile" => 0,
-    "Test::Most" => 0
+    "Test::Deep" => 0,
+    "Test::Differences" => 0,
+    "Test::More" => 0
   }
 );
 
@@ -41,7 +47,9 @@ my %module_build_args = (
 my %fallback_build_requires = (
   "Module::Build" => "0.28",
   "Test::Compile" => 0,
-  "Test::Most" => 0
+  "Test::Deep" => 0,
+  "Test::Differences" => 0,
+  "Test::More" => 0
 );
 
 

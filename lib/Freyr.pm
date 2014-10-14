@@ -32,12 +32,8 @@ __END__
 
 =head1 SYNOPSIS
 
+    # TODO
+
 =head1 DESCRIPTION
 
-=head1 ARGUMENTS
-
-=head1 OPTIONS
-
-=head1 ATTRIBUTES
-
-=head1 METHODS
+Freyr is an IRC bot designed for multiple networks and a web interface.
