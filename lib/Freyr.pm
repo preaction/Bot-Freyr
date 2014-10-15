@@ -21,6 +21,11 @@ sub modules {
         Test => [qw( Test::More Test::Deep Test::Differences )],
     );
 
+    if ( grep { $_ eq 'Test' } @$bundles ) {
+        # Do not connect to live servers during testing
+        $ENV{ MOJO_IRC_OFFLINE } = 1;
+    }
+
     # Return an array of imports/unimports
     return $class->SUPER::modules( $bundles, $args ),
         @modules,
