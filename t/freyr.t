@@ -136,6 +136,10 @@ subtest 'message routing' => sub {
                         like $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
                     };
                 };
+                subtest 'private message is valid prefix' => sub {
+                    $irc->from_irc_server( ':preaction PRIVMSG freyr greet' );
+                    like $irc->{to_irc_server}, qr{PRIVMSG preaction Hello, preaction!};
+                };
                 subtest 'unprefixed message is not responded to' => sub {
                     $irc->from_irc_server( ':preaction PRIVMSG #defocus greet' );
                     unlike $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
@@ -155,6 +159,10 @@ subtest 'message routing' => sub {
                 subtest 'prefixed message is not responded to' => sub {
                     $irc->from_irc_server( ':preaction PRIVMSG #defocus !greet' );
                     unlike $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
+                };
+                subtest 'private message is not responded to' => sub {
+                    $irc->from_irc_server( ':preaction PRIVMSG freyr greet' );
+                    unlike $irc->{to_irc_server}, qr{PRIVMSG preaction Hello, preaction!};
                 };
             };
 
@@ -180,6 +188,22 @@ subtest 'message routing' => sub {
             };
         };
         subtest 'under() routes' => sub {
+            subtest 'prefixed messages' => sub {
+                my $seen = 0;
+                $bot->under( '' => sub {
+                    subtest 'cb args' => $test_cb_args->( @_ );
+                    my ( $msg ) = @_;
+                    $seen++;
+                    return;
+                } );
+                $irc->from_irc_server( ':preaction PRIVMSG #defocus !greet' );
+                ok !$irc->{to_irc_server}, 'no response to prefixed message';
+                $irc->from_irc_server( ':preaction PRIVMSG #defocus greet' );
+                ok !$irc->{to_irc_server}, 'no response to unprefixed message';
+                $irc->from_irc_server( ':preaction PRIVMSG freyr greet' );
+                ok !$irc->{to_irc_server}, 'no response to private message';
+                is $seen, 2, 'prefixed messages are seen';
+            };
             subtest 'all messages' => sub {
                 my $seen = 0;
                 $bot->under( '/' => sub {
@@ -192,7 +216,9 @@ subtest 'message routing' => sub {
                 ok !$irc->{to_irc_server}, 'no response to prefixed message';
                 $irc->from_irc_server( ':preaction PRIVMSG #defocus greet' );
                 ok !$irc->{to_irc_server}, 'no response to unprefixed message';
-                is $seen, 2, 'all messages are seen';
+                $irc->from_irc_server( ':preaction PRIVMSG freyr greet' );
+                ok !$irc->{to_irc_server}, 'no response to private message';
+                is $seen, 3, 'all messages are seen';
             };
         };
     };
