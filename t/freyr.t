@@ -1,5 +1,5 @@
 
-use Freyr 'Test';
+use Freyr::Base 'Test';
 
 subtest 'connect to networks' => sub {
     subtest 'single network' => sub {
