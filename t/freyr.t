@@ -11,49 +11,54 @@ subtest 'connect to networks' => sub {
         isa_ok $bot->network, 'Freyr::Network';
         is $net->host, 'irc.freenode.net';
     };
-    subtest 'simple connect' => sub {
-        my $bot = Freyr->new(
-            nick => 'freyr',
-        );
-        my $net = $bot->network( freenode => 'irc.freenode.net' );
-        isa_ok $net, 'Freyr::Network';
-        is $net->nick, $bot->nick;
-    };
-    subtest 'connect options' => sub {
-        my $bot = Freyr->new(
-            nick => 'freyr',
-        );
-        my $net = $bot->network( freenode => {
-            host => 'irc.freenode.net',
-            port => '6667',
-            nick => 'freyr_',
-        } );
-        isa_ok $net, 'Freyr::Network';
-        is $net->nick, 'freyr_';
-    };
-    subtest 'default networks' => sub {
-        my $bot = Freyr->new(
-            nick => 'freyr',
-            networks => {
-                freenode => 'irc.freenode.net',
-                perl => {
-                    host => 'irc.perl.org',
-                    port => '6667',
-                },
-            },
-        );
+
+    TODO: {
+        local $TODO = "Multinetwork support is upcoming";
         subtest 'simple connect' => sub {
-            my $net = $bot->network( 'freenode' );
+            my $bot = Freyr->new(
+                nick => 'freyr',
+            );
+            my $net = $bot->network( freenode => 'irc.freenode.net' );
             isa_ok $net, 'Freyr::Network';
-            is $net->host, 'irc.freenode.net';
+            is $net->nick, $bot->nick;
         };
         subtest 'connect options' => sub {
-            my $net = $bot->network( 'perl' );
+            my $bot = Freyr->new(
+                nick => 'freyr',
+            );
+            my $net = $bot->network( freenode => {
+                host => 'irc.freenode.net',
+                port => '6667',
+                nick => 'freyr_',
+            } );
             isa_ok $net, 'Freyr::Network';
-            is $net->host, 'irc.perl.org';
-            is $net->port, '6667';
+            is $net->nick, 'freyr_';
+        };
+        subtest 'default networks' => sub {
+            my $bot = Freyr->new(
+                nick => 'freyr',
+                networks => {
+                    freenode => 'irc.freenode.net',
+                    perl => {
+                        host => 'irc.perl.org',
+                        port => '6667',
+                    },
+                },
+            );
+            subtest 'simple connect' => sub {
+                my $net = $bot->network( 'freenode' );
+                isa_ok $net, 'Freyr::Network';
+                is $net->host, 'irc.freenode.net';
+            };
+            subtest 'connect options' => sub {
+                my $net = $bot->network( 'perl' );
+                isa_ok $net, 'Freyr::Network';
+                is $net->host, 'irc.perl.org';
+                is $net->port, '6667';
+            };
         };
     };
+
 };
 
 subtest 'join channels' => sub {
@@ -82,14 +87,18 @@ subtest 'join channels' => sub {
             is $chan->network->host, 'irc.freenode.net';
         };
     };
-    subtest 'multiple networks' => sub {
-        my $bot = Freyr->new(
-            nick => 'freyr',
-        );
-        my $net = $bot->network( 'irc.freenode.net' );
-        my $chan = $net->channel( '#defocus' );
-        isa_ok $chan, 'Freyr::Channel';
-        is $chan->network->host, $net->host;
+
+    TODO: {
+        local $TODO = "Multinetwork support is upcoming";
+        subtest 'multiple networks' => sub {
+            my $bot = Freyr->new(
+                nick => 'freyr',
+            );
+            my $net = $bot->network( 'irc.freenode.net' );
+            my $chan = $net->channel( '#defocus' );
+            isa_ok $chan, 'Freyr::Channel';
+            is $chan->network->host, $net->host;
+        };
     };
 };
 
