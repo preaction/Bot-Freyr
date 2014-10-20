@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+package freyr;
+# ABSTRACT: A sample script to connect to IRC and do nothing
+
+use Freyr::Base;
+use Getopt::Long qw( GetOptionsFromArray );
+
+my %opt = (
+    nick => 'freyr',
+);
+GetOptionsFromArray( \@ARGV, \%opt,
+    'nick|n=s',
+);
+
+my $bot = Freyr->new(
+    nick => $opt{nick},
+    host => $ARGV[0],
+    channels => [ @ARGV[1..$#ARGV] ],
+);
+
+Mojo::IOLoop->start;

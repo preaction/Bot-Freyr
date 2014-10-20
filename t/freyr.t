@@ -12,6 +12,18 @@ subtest 'connect to networks' => sub {
         is $net->host, 'irc.freenode.net';
     };
 
+    subtest 'network object created' => sub {
+        my $bot = Freyr->new(
+            network => Freyr::Network->new(
+                nick => 'freyr',
+                host => 'irc.freenode.net',
+            ),
+        );
+        my $net = $bot->network;
+        isa_ok $bot->network, 'Freyr::Network';
+        is $net->host, 'irc.freenode.net';
+    };
+
     TODO: {
         local $TODO = "Multinetwork support is upcoming";
         return;
@@ -69,7 +81,11 @@ subtest 'join channels' => sub {
                 nick => 'freyr',
                 host => 'irc.freenode.net',
             );
+            my $irc = $bot->network->irc;
+            like $irc->{to_irc_server}, qr{NICK freyr};
+            like $irc->{to_irc_server}, qr{USER freyr};
             my $chan = $bot->channel( '#defocus' );
+            like $irc->{to_irc_server}, qr{JOIN \#defocus};
             isa_ok $chan, 'Freyr::Channel';
             is $chan->name, '#defocus';
             isa_ok $chan->network, 'Freyr::Network';
@@ -81,6 +97,10 @@ subtest 'join channels' => sub {
                 host => 'irc.freenode.net',
                 channels => [ '#defocus' ],
             );
+            my $irc = $bot->network->irc;
+            like $irc->{to_irc_server}, qr{NICK freyr};
+            like $irc->{to_irc_server}, qr{USER freyr};
+            like $irc->{to_irc_server}, qr{JOIN \#defocus};
             my $chan = $bot->channel( '#defocus' );
             isa_ok $chan, 'Freyr::Channel';
             is $chan->name, '#defocus';
