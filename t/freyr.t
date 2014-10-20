@@ -14,6 +14,7 @@ subtest 'connect to networks' => sub {
 
     TODO: {
         local $TODO = "Multinetwork support is upcoming";
+        return;
         subtest 'simple connect' => sub {
             my $bot = Freyr->new(
                 nick => 'freyr',
@@ -90,6 +91,7 @@ subtest 'join channels' => sub {
 
     TODO: {
         local $TODO = "Multinetwork support is upcoming";
+        return;
         subtest 'multiple networks' => sub {
             my $bot = Freyr->new(
                 nick => 'freyr',
