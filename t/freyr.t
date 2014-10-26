@@ -1,4 +1,6 @@
 
+# Do not connect to live servers during testing
+BEGIN { $ENV{ MOJO_IRC_OFFLINE } = 1 };
 use Freyr::Base 'Test';
 
 subtest 'connect to networks' => sub {

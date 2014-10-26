@@ -5,45 +5,31 @@ use strict;
 use warnings;
 use parent 'Import::Base';
 
-sub modules {
-    my ( $class, $bundles, $args ) = @_;
+# Modules that are always imported
+our @IMPORT_MODULES = (
+    'strict',
+    'warnings',
+    'feature' => [qw( :5.20 )],
+    'experimental' => [qw( signatures postderef )],
+    'Freyr',
+);
 
-    # Modules that are always imported
-    my @modules = (
-        'strict',
-        'warnings',
-        'feature' => [qw( :5.20 )],
-        'experimental' => [qw( signatures postderef )],
-        'Freyr',
-    );
+# Optional bundles
+my @class_common = (
+    'Types::Standard' => [qw( :all )],
+);
 
-    # Optional bundles
-    my @class_common = (
-        'Types::Standard' => [qw( :all )],
-    );
-
-    my %bundles = (
-        Test => [qw( Test::More Test::Deep Test::Differences Test::Exception )],
-        Class => [
-            qw( Moo::Lax ),
-            @class_common,
-        ],
-        Role => [
-            qw( Moo::Role::Lax ),
-            @class_common,
-        ],
-    );
-
-    if ( grep { $_ eq 'Test' } @$bundles ) {
-        # Do not connect to live servers during testing
-        $ENV{ MOJO_IRC_OFFLINE } = 1;
-    }
-
-    # Return an array of imports/unimports
-    return $class->SUPER::modules( $bundles, $args ),
-        @modules,
-        map { @{ $bundles{ $_ } } } grep { exists $bundles{ $_ } } @$bundles;
-}
+our %IMPORT_BUNDLES = (
+    Test => [qw( Test::More Test::Deep Test::Differences Test::Exception )],
+    Class => [
+        qw( Moo::Lax ),
+        @class_common,
+    ],
+    Role => [
+        qw( Moo::Role::Lax ),
+        @class_common,
+    ],
+);
 
 1;
 __END__
@@ -114,7 +100,7 @@ The role bundle makes your package into a role and includes:
 
 =head2 Test
 
-The test bundle enables Mojo::IRC's test mode and includes:
+The test bundle includes:
 
 =over 4
 
