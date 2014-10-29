@@ -4,6 +4,50 @@ package Freyr;
 use Freyr::Base 'Class';
 use Freyr::Network;
 
+=attr nick
+
+The default nickname for the bot
+
+=cut
+
+has nick => (
+    is => 'ro',
+    isa => Str,
+);
+
+=attr prefix
+
+The prefix character. A shortcut to address the bot.
+
+=cut
+
+has prefix => (
+    is => 'ro',
+    isa => Str,
+);
+
+=attr host
+
+The default host to connect to in single-network mode.
+
+=cut
+
+has host => (
+    is => 'ro',
+    isa => Str,
+);
+
+=attr port
+
+The default port to connect to in single-network mode.
+
+=cut
+
+has port => (
+    is => 'ro',
+    isa => Int,
+);
+
 =attr network
 
 The L<network|Freyr::Network> the bot is currently connected to.
@@ -13,29 +57,52 @@ The L<network|Freyr::Network> the bot is currently connected to.
 has network => (
     is => 'rw',
     isa => InstanceOf['Freyr::Network'],
+    lazy => 1,
+    default => sub ( $self ) {
+        Freyr::Network->new(
+            map {; $_ => $self->$_ }
+            grep { defined $self->$_ }
+            qw( nick host port )
+        );
+    },
 );
 
-=method BUILDARGS
+=attr channels
 
-Handle giving network information directly to the bot constructor.
+The channel names to connect to in single-network mode.
 
 =cut
 
-around BUILDARGS => sub {
-    my ( $orig, $class, @args ) = @_;
-    my $args = $class->$orig( @args );
-    if ( $args->{nick} && $args->{host} ) {
-        $args->{network} = Freyr::Network->new(
-            map {; $_ => delete $args->{$_} }
-            grep { exists $args->{$_} }
-            qw( nick host port )
-        );
+has channels => (
+    is => 'ro',
+    isa => ArrayRef[Str],
+    default => sub { [] },
+);
+
+=attr _routes
+
+The routes for the entire bot.
+
+=cut
+
+has _routes => (
+    is => 'ro',
+    isa => HashRef,
+    default => sub { {} },
+);
+
+=method BUILD
+
+Initialize the network in single-network mode.
+
+=cut
+
+sub BUILD( $self, @ ) {
+    if ( my $network = $self->network ) {
+        $network->irc->on( irc_privmsg => $self->curry::weak::_route_message( $network ) );
+        $network->channel( $_ ) for $self->channels->@*;
     }
-    if ( $args->{channels} ) {
-        $args->{network}->channel( $_ ) for @{ $args->{channels} };
-    }
-    return $args;
-};
+}
 
 =method channel( NAME )
 
@@ -46,6 +113,55 @@ Get a L<channel|Freyr::Channel> object, joining the channel if necessary.
 sub channel {
     my ( $self, $name ) = @_;
     return $self->network->channel( $name );
+}
+
+=method route( SPEC => SUB )
+
+Add a route to the entire bot. Routes must be unique. Only one route will be triggered
+for every message.
+
+=cut
+
+sub route( $self, $route, $cb ) {
+    $self->_routes->{ $route } = $cb;
+}
+
+=method _route_message( NETWORK, MESSAGE )
+
+=cut
+
+sub _route_message( $self, $network, $irc, $irc_msg ) {
+    my ( $to, @words ) = @{ $irc_msg->{params} };
+    my $me = $self->nick;
+    my $prefix = $self->prefix;
+
+    my ( $to_me );
+    if ( $to eq $me ) {
+        $to_me = 1;
+    }
+    elsif ( $to =~ /^\#/ ) {
+        if ( $words[0] =~ /^$me[:,]$/ ) {
+            $to_me = 1;
+            shift @words;
+        }
+        elsif ( $words[0] =~ /^$prefix/ ) {
+            $to_me = 1;
+            $words[0] =~ s/^$prefix//;
+        }
+    }
+
+    my $message = join " ", @words;
+    for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
+        my $route_re = _route_re( $route );
+        if ( $message =~ $route_re ) {
+            $self->_routes->{ $route }->( $self, $network, $message );
+            last;
+        }
+    }
+}
+
+sub _route_re {
+    ...
 }
 
 1;

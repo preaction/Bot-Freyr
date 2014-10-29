@@ -11,6 +11,7 @@ our @IMPORT_MODULES = (
     'warnings',
     'feature' => [qw( :5.20 )],
     'experimental' => [qw( signatures postderef )],
+    'curry', 'curry::weak',
     'Freyr',
 );
 
