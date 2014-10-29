@@ -143,6 +143,15 @@ subtest 'message routing' => sub {
                 is $msg->nick, 'preaction';
             }
         };
+        my $test_msg = sub( $irc, $send, $recv ) {
+            return sub {
+                $irc->{to_irc_server} = '';
+                $irc->from_irc_server( $send . "\r\n" );
+                like $irc->{to_irc_server}, $recv;
+                $irc->{to_irc_server} = '';
+            }
+        };
+
         my $irc = $bot->network->irc;
         subtest 'route matching' => sub {
             subtest 'default is prefixed' => sub {
@@ -151,32 +160,32 @@ subtest 'message routing' => sub {
                     my ( $msg ) = @_;
                     return sprintf 'Hello, %s!', $msg->nick;
                 } );
-                subtest 'prefixed message is responded to' => sub {
-                    $irc->from_irc_server( ':preaction PRIVMSG #defocus !greet' );
-                    like $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
-                };
+                subtest 'prefixed message is responded to' => $test_msg->(
+                    $irc, ':preaction PRIVMSG #defocus !greet',
+                    qr{PRIVMSG \#defocus Hello, preaction!},
+                );
                 subtest 'bot nick is a valid prefix' => sub {
-                    subtest 'nick: command' => sub {
-                        $irc->from_irc_server( ':preaction PRIVMSG #defocus freyr: greet' );
-                        like $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
-                    };
-                    subtest 'nick, command' => sub {
-                        $irc->from_irc_server( ':preaction PRIVMSG #defocus freyr, greet' );
-                        like $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
-                    };
-                    subtest 'nick command' => sub {
-                        $irc->from_irc_server( ':preaction PRIVMSG #defocus freyr greet' );
-                        like $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
-                    };
+                    subtest 'nick: command' => $test_msg->(
+                        $irc, ':preaction PRIVMSG #defocus freyr: greet',
+                        qr{PRIVMSG \#defocus Hello, preaction!},
+                    );
+                    subtest 'nick, command' => $test_msg->(
+                        $irc, ':preaction PRIVMSG #defocus freyr, greet',
+                        qr{PRIVMSG \#defocus Hello, preaction!},
+                    );
+                    subtest 'nick command' => $test_msg->(
+                        $irc, ':preaction PRIVMSG #defocus freyr greet',
+                        qr{PRIVMSG \#defocus Hello, preaction!},
+                    );
                 };
-                subtest 'private message is valid prefix' => sub {
-                    $irc->from_irc_server( ':preaction PRIVMSG freyr greet' );
-                    like $irc->{to_irc_server}, qr{PRIVMSG preaction Hello, preaction!};
-                };
-                subtest 'unprefixed message is not responded to' => sub {
-                    $irc->from_irc_server( ':preaction PRIVMSG #defocus greet' );
-                    unlike $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
-                };
+                subtest 'private message is valid prefix' => $test_msg->(
+                    $irc, ':preaction PRIVMSG freyr greet',
+                    qr{PRIVMSG preaction Hello, preaction!},
+                );
+                subtest 'unprefixed message is not responded to' => $test_msg->(
+                    $irc, ':preaction PRIVMSG #defocus greet',
+                    qr{PRIVMSG \#defocus Hello, preaction!},
+                );
             };
 
             subtest 'unprefixed routes' => sub {
@@ -185,18 +194,18 @@ subtest 'message routing' => sub {
                     my ( $msg ) = @_;
                     return sprintf 'Hello, %s!', $msg->nick;
                 } );
-                subtest 'unprefixed message is responded to' => sub {
-                    $irc->from_irc_server( ':preaction PRIVMSG #defocus greet' );
-                    like $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
-                };
-                subtest 'prefixed message is not responded to' => sub {
-                    $irc->from_irc_server( ':preaction PRIVMSG #defocus !greet' );
-                    unlike $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
-                };
-                subtest 'private message is not responded to' => sub {
-                    $irc->from_irc_server( ':preaction PRIVMSG freyr greet' );
-                    unlike $irc->{to_irc_server}, qr{PRIVMSG preaction Hello, preaction!};
-                };
+                subtest 'unprefixed message is responded to' => $test_msg->(
+                    $irc, ':preaction PRIVMSG #defocus greet',
+                    qr{PRIVMSG \#defocus Hello, preaction!},
+                );
+                subtest 'prefixed message is not responded to' => $test_msg->(
+                    $irc, ':preaction PRIVMSG #defocus !greet',
+                    qr{PRIVMSG \#defocus Hello, preaction!},
+                );
+                subtest 'private message is not responded to' => $test_msg->(
+                    $irc, ':preaction PRIVMSG freyr greet',
+                    qr{PRIVMSG preaction Hello, preaction!},
+                );
             };
 
             subtest 'placeholders' => sub {
@@ -206,18 +215,18 @@ subtest 'message routing' => sub {
                     $who //= $msg->nick;
                     return sprintf 'Hello, %s!', $who;
                 } );
-                subtest 'prefixed message with placeholder content' => sub {
-                    $irc->from_irc_server( ':preaction PRIVMSG #defocus !greet Perl' );
-                    like $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, Perl!};
-                };
-                subtest 'prefixed message with default content' => sub {
-                    $irc->from_irc_server( ':preaction PRIVMSG #defocus !greet' );
-                    like $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, preaction!};
-                };
-                subtest 'unprefixed message is not responded to' => sub {
-                    $irc->from_irc_server( ':preaction PRIVMSG #defocus greet Perl' );
-                    unlike $irc->{to_irc_server}, qr{PRIVMSG \#defocus Hello, Perl!};
-                };
+                subtest 'prefixed message with placeholder content' => $test_msg->(
+                    $irc, ':preaction PRIVMSG #defocus !greet Perl',
+                    qr{PRIVMSG \#defocus Hello, Perl!},
+                );
+                subtest 'prefixed message with default content' => $test_msg->(
+                    $irc, ':preaction PRIVMSG #defocus !greet',
+                    qr{PRIVMSG \#defocus Hello, preaction!},
+                );
+                subtest 'unprefixed message is not responded to' => $test_msg->(
+                    $irc, ':preaction PRIVMSG #defocus greet Perl',
+                    qr{PRIVMSG \#defocus Hello, Perl!},
+                );
             };
         };
         subtest 'under() routes' => sub {
