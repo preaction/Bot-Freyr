@@ -169,7 +169,14 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
 
             my $reply = $self->_routes->{ $route }->( $message, %params );
             if ( $reply ) {
-                $irc->write( join " ", "PRIVMSG", $to, $reply );
+                my @to;
+                if ( $to =~ /^\#/ ) {
+                    @to = ( $to, "$from_nick:" );
+                }
+                else {
+                    @to = ( $to );
+                }
+                $irc->write( join " ", "PRIVMSG", @to, $reply );
             }
 
             # Only one route can match
