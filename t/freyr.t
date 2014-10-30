@@ -220,6 +220,26 @@ subtest 'message routing' => sub {
                     $irc, ':preaction!doug@example.com PRIVMSG freyr greet',
                     unlike => qr{PRIVMSG preaction Hello, preaction!},
                 );
+                subtest 'unprefixed route that matches our prefix' => sub {
+                    $bot->route( '/!bonjour' => sub {
+                        subtest 'cb args' => $test_cb_args->( @_ );
+                        my ( $msg ) = @_;
+                        return sprintf 'Freyr, %s!', $msg->nick;
+                    } );
+                    subtest 'unprefixed route with our prefix char matches' => $test_msg->(
+                        $irc, ':preaction!doug@example.com PRIVMSG #defocus !bonjour',
+                        like => qr{PRIVMSG \#defocus preaction: Freyr, preaction!},
+                    );
+                    $bot->route( '/freyr,' => sub {
+                        subtest 'cb args' => $test_cb_args->( @_ );
+                        my ( $msg ) = @_;
+                        return sprintf 'Freyr, hello %s!', $msg->nick;
+                    } );
+                    subtest 'unprefixed route with our name matches' => $test_msg->(
+                        $irc, ':preaction!doug@example.com PRIVMSG #defocus freyr, hello',
+                        like => qr{PRIVMSG \#defocus preaction: Freyr, hello preaction!},
+                    );
+                };
             };
 
             subtest 'placeholders' => sub {

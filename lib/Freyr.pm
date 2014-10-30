@@ -158,7 +158,6 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
     my $text = join " ", @words;
     for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
         next if !$to_me && $route !~ m{^/}; # Prefixed route (the default)
-        next if $to_me && $route =~ m{^/}; # Unprefixed route
 
         my $route_text = $route =~ m{^/} ? $raw_text : $text;
         my ( $route_re, @names ) = _route_re( $route );
