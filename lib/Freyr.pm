@@ -133,6 +133,7 @@ sub route( $self, $route, $cb ) {
 
 sub _route_message( $self, $network, $irc, $irc_msg ) {
     my ( $to, @words ) = @{ $irc_msg->{params} };
+    my $raw_text = join " ", @words;
     my $me = $self->nick;
     my $prefix = $self->prefix;
     my ( $from_nick ) = $irc_msg->{prefix} =~ /^([^!]+)!([^@]+)\@(.+)$/;
@@ -156,15 +157,19 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
 
     my $text = join " ", @words;
     for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
+        next if !$to_me && $route !~ m{^/}; # Prefixed route (the default)
+        next if $to_me && $route =~ m{^/}; # Unprefixed route
+
+        my $route_text = $route =~ m{^/} ? $raw_text : $text;
         my ( $route_re, @names ) = _route_re( $route );
-        if ( $text =~ $route_re ) {
+        if ( $route_text =~ $route_re ) {
             my %params = %+;
             my $msg = Freyr::Message->new(
                 bot => $self,
                 network => $network,
                 ( $channel ? ( channel => $network->channel( $channel ) ) : () ),
                 nick => $from_nick,
-                text => $text,
+                text => $route_text,
             );
 
             my $reply = $self->_routes->{ $route }->( $msg, %params );
@@ -187,10 +192,11 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
 
 sub _route_re {
     my ( $route ) = @_;
+    $route =~ s{^/}{};
     while ( $route =~ /:/ ) {
         $route =~ s/:(\w+)/(?<$1>\S+)/;
     }
-    return $route;
+    return qr{^$route};
 }
 
 1;
