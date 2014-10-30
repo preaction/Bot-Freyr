@@ -128,11 +128,7 @@ subtest 'join channels' => sub {
 
 subtest 'message routing' => sub {
     subtest 'bot routes' => sub {
-        my $bot = Freyr->new(
-            nick => 'freyr',
-            host => 'irc.freenode.net',
-            prefix => '!',
-        );
+        my $bot;
         my $test_cb_args = sub {
             my ( $msg, %params ) = @_;
             return sub {
@@ -159,9 +155,14 @@ subtest 'message routing' => sub {
             }
         };
 
-        my $irc = $bot->network->irc;
         subtest 'route matching' => sub {
             subtest 'default is prefixed' => sub {
+                $bot = Freyr->new(
+                    nick => 'freyr',
+                    host => 'irc.freenode.net',
+                    prefix => '!',
+                );
+                my $irc = $bot->network->irc;
                 $bot->route( 'greet' => sub {
                     subtest 'cb args' => $test_cb_args->( @_ );
                     my ( $msg, %params ) = @_;
@@ -196,6 +197,12 @@ subtest 'message routing' => sub {
             };
 
             subtest 'unprefixed routes' => sub {
+                $bot = Freyr->new(
+                    nick => 'freyr',
+                    host => 'irc.freenode.net',
+                    prefix => '!',
+                );
+                my $irc = $bot->network->irc;
                 $bot->route( '/greet' => sub {
                     subtest 'cb args' => $test_cb_args->( @_ );
                     my ( $msg ) = @_;
@@ -216,6 +223,12 @@ subtest 'message routing' => sub {
             };
 
             subtest 'placeholders' => sub {
+                $bot = Freyr->new(
+                    nick => 'freyr',
+                    host => 'irc.freenode.net',
+                    prefix => '!',
+                );
+                my $irc = $bot->network->irc;
                 $bot->route( 'greet :who' => sub {
                     subtest 'cb args' => $test_cb_args->( @_ );
                     my ( $msg, $who ) = @_;
@@ -238,6 +251,12 @@ subtest 'message routing' => sub {
         };
         subtest 'under() routes' => sub {
             subtest 'prefixed messages' => sub {
+                $bot = Freyr->new(
+                    nick => 'freyr',
+                    host => 'irc.freenode.net',
+                    prefix => '!',
+                );
+                my $irc = $bot->network->irc;
                 my $seen = 0;
                 $bot->under( '' => sub {
                     subtest 'cb args' => $test_cb_args->( @_ );
@@ -254,6 +273,12 @@ subtest 'message routing' => sub {
                 is $seen, 2, 'prefixed messages are seen';
             };
             subtest 'all messages' => sub {
+                $bot = Freyr->new(
+                    nick => 'freyr',
+                    host => 'irc.freenode.net',
+                    prefix => '!',
+                );
+                my $irc = $bot->network->irc;
                 my $seen = 0;
                 $bot->under( '/' => sub {
                     subtest 'cb args' => $test_cb_args->( @_ );
