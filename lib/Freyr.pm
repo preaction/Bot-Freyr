@@ -154,20 +154,20 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
         }
     }
 
-    my $message = join " ", @words;
+    my $text = join " ", @words;
     for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
         my ( $route_re, @names ) = _route_re( $route );
-        if ( $message =~ $route_re ) {
+        if ( $text =~ $route_re ) {
             my %params = %+;
-            my $message = Freyr::Message->new(
+            my $msg = Freyr::Message->new(
                 bot => $self,
                 network => $network,
                 ( $channel ? ( channel => $network->channel( $channel ) ) : () ),
                 nick => $from_nick,
-                text => $message,
+                text => $text,
             );
 
-            my $reply = $self->_routes->{ $route }->( $message, %params );
+            my $reply = $self->_routes->{ $route }->( $msg, %params );
             if ( $reply ) {
                 my @to;
                 if ( $to =~ /^\#/ ) {
