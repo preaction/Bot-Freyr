@@ -174,7 +174,7 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
                     @to = ( $to, "$from_nick:" );
                 }
                 else {
-                    @to = ( $to );
+                    @to = ( $from_nick );
                 }
                 $irc->write( join " ", "PRIVMSG", @to, $reply );
             }
