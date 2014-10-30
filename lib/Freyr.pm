@@ -3,6 +3,7 @@ package Freyr;
 
 use Freyr::Base 'Class';
 use Freyr::Network;
+use Freyr::Message;
 
 =attr nick
 
@@ -134,12 +135,15 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
     my ( $to, @words ) = @{ $irc_msg->{params} };
     my $me = $self->nick;
     my $prefix = $self->prefix;
+    my ( $from_nick ) = $irc_msg->{prefix} =~ /^([^!]+)!([^@]+)\@(.+)$/;
+    my $channel;
 
     my ( $to_me );
     if ( $to eq $me ) {
         $to_me = 1;
     }
     elsif ( $to =~ /^\#/ ) {
+        $channel = $to;
         if ( $words[0] =~ /^$me[:,]$/ ) {
             $to_me = 1;
             shift @words;
@@ -152,16 +156,34 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
 
     my $message = join " ", @words;
     for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
-        my $route_re = _route_re( $route );
+        my ( $route_re, @names ) = _route_re( $route );
         if ( $message =~ $route_re ) {
-            $self->_routes->{ $route }->( $self, $network, $message );
+            my %params = %+;
+            my $message = Freyr::Message->new(
+                bot => $self,
+                network => $network,
+                ( $channel ? ( channel => $network->channel( $channel ) ) : () ),
+                nick => $from_nick,
+                text => $message,
+            );
+
+            my $reply = $self->_routes->{ $route }->( $message, %params );
+            if ( $reply ) {
+                $irc->write( join " ", "PRIVMSG", $to, $reply );
+            }
+
+            # Only one route can match
             last;
         }
     }
 }
 
 sub _route_re {
-    ...
+    my ( $route ) = @_;
+    while ( $route =~ /:/ ) {
+        $route =~ s/:(\w+)/(?<$1>\S+)/;
+    }
+    return $route;
 }
 
 1;
