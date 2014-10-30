@@ -212,13 +212,13 @@ subtest 'message routing' => sub {
                     $irc, ':preaction!doug@example.com PRIVMSG #defocus greet',
                     like => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
                 );
-                subtest 'prefixed message is not responded to' => $test_msg->(
+                subtest 'prefixed message does not match the route' => $test_msg->(
                     $irc, ':preaction!doug@example.com PRIVMSG #defocus !greet',
                     unlike => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
                 );
-                subtest 'private message is not responded to' => $test_msg->(
+                subtest 'private message is responded to' => $test_msg->(
                     $irc, ':preaction!doug@example.com PRIVMSG freyr greet',
-                    unlike => qr{PRIVMSG preaction Hello, preaction!},
+                    like => qr{PRIVMSG preaction Hello, preaction!},
                 );
                 subtest 'unprefixed route that matches our prefix' => sub {
                     $bot->route( '/!bonjour' => sub {
