@@ -145,7 +145,7 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
     }
     elsif ( $to =~ /^\#/ ) {
         $channel = $to;
-        if ( $words[0] =~ /^$me[:,]$/ ) {
+        if ( $words[0] =~ /^$me[:,]?$/ ) {
             $to_me = 1;
             shift @words;
         }
