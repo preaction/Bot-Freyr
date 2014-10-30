@@ -138,7 +138,9 @@ subtest 'message routing' => sub {
             return sub {
                 isa_ok $msg, 'Freyr::Message';
                 is $msg->bot, $bot;
-                is $msg->channel, $bot->channel( '#defocus' );
+                if ( $msg->channel ) {
+                    is $msg->channel, $bot->channel( '#defocus' );
+                }
                 is $msg->network, $bot->network;
                 is $msg->nick, 'preaction';
             }
