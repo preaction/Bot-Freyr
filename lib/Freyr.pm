@@ -161,6 +161,7 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
 
         my $route_text = $route =~ m{^/} ? $raw_text : $text;
         my ( $route_re, @names ) = _route_re( $route );
+        #; say "$route_text =~ $route_re";
         if ( $route_text =~ $route_re ) {
             my %params = %+;
             my $msg = Freyr::Message->new(
@@ -193,8 +194,9 @@ sub _route_re {
     my ( $route ) = @_;
     $route =~ s{^/}{};
     while ( $route =~ /:/ ) {
-        $route =~ s/:(\w+)/(?<$1>\S+)/;
+        $route =~ s/\s+\:(\w+)([?]?)/( $2 eq '?' ? '\\s*' : '\\s+' ) . "(?<$1>\\S+)$2"/e;
     }
+    #; say $route;
     return qr{^$route};
 }
 
