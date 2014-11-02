@@ -84,10 +84,10 @@ subtest 'join channels' => sub {
                 host => 'irc.freenode.net',
             );
             my $irc = $bot->network->irc;
-            like $irc->{to_irc_server}, qr{NICK freyr};
-            like $irc->{to_irc_server}, qr{USER freyr};
+            like $irc->{to_irc_server}, qr{NICK freyr\r\n};
+            like $irc->{to_irc_server}, qr{USER freyr[^\r]+\r\n};
             my $chan = $bot->channel( '#defocus' );
-            like $irc->{to_irc_server}, qr{JOIN \#defocus};
+            like $irc->{to_irc_server}, qr{JOIN \#defocus\r\n};
             isa_ok $chan, 'Freyr::Channel';
             is $chan->name, '#defocus';
             isa_ok $chan->network, 'Freyr::Network';
@@ -100,9 +100,9 @@ subtest 'join channels' => sub {
                 channels => [ '#defocus' ],
             );
             my $irc = $bot->network->irc;
-            like $irc->{to_irc_server}, qr{NICK freyr};
-            like $irc->{to_irc_server}, qr{USER freyr};
-            like $irc->{to_irc_server}, qr{JOIN \#defocus};
+            like $irc->{to_irc_server}, qr{NICK freyr\r\n};
+            like $irc->{to_irc_server}, qr{USER freyr[^\r]+\r\n};
+            like $irc->{to_irc_server}, qr{JOIN \#defocus\r\n};
             my $chan = $bot->channel( '#defocus' );
             isa_ok $chan, 'Freyr::Channel';
             is $chan->name, '#defocus';
@@ -161,6 +161,7 @@ subtest 'message routing' => sub {
                     nick => 'freyr',
                     host => 'irc.freenode.net',
                     prefix => '!',
+                    channels => [qw( #defocus )],
                 );
                 my $irc = $bot->network->irc;
                 $bot->route( 'greet' => sub {
@@ -201,6 +202,7 @@ subtest 'message routing' => sub {
                     nick => 'freyr',
                     host => 'irc.freenode.net',
                     prefix => '!',
+                    channels => [qw( #defocus )],
                 );
                 my $irc = $bot->network->irc;
                 $bot->route( '/greet' => sub {
@@ -301,6 +303,7 @@ subtest 'message routing' => sub {
                     nick => 'freyr',
                     host => 'irc.freenode.net',
                     prefix => '!',
+                    channels => [qw( #defocus )],
                 );
                 my $irc = $bot->network->irc;
                 my $seen = 0;
@@ -323,6 +326,7 @@ subtest 'message routing' => sub {
                     nick => 'freyr',
                     host => 'irc.freenode.net',
                     prefix => '!',
+                    channels => [qw( #defocus )],
                 );
                 my $irc = $bot->network->irc;
                 my $seen = 0;
