@@ -10,14 +10,15 @@ our @IMPORT_MODULES = (
     'strict',
     'warnings',
     'feature' => [qw( :5.20 )],
-    'experimental' => [qw( signatures postderef )],
     'curry', 'curry::weak',
+    'experimental' => [qw( signatures postderef lexical_subs )],
     'Freyr',
 );
 
 # Optional bundles
 my @class_common = (
     'Types::Standard' => [qw( :all )],
+    'experimental' => [qw( signatures postderef lexical_subs )],
 );
 
 our %IMPORT_BUNDLES = (
