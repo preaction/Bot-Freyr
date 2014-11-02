@@ -92,6 +92,18 @@ has _routes => (
     default => sub { {} },
 );
 
+=attr _unders
+
+The unders for the entire bot.
+
+=cut
+
+has _unders => (
+    is => 'ro',
+    isa => HashRef[ArrayRef[CodeRef]],
+    default => sub { {} },
+);
+
 =method BUILD
 
 Initialize the network in single-network mode.
@@ -127,6 +139,22 @@ sub route( $self, $route, $cb ) {
     $self->_routes->{ $route } = $cb;
 }
 
+=method under( SPEC => SUB )
+
+Add a callback to the entire bot. Unlike L<route>, unders do not need to be
+unique, and multiple unders may be called for a single message.
+
+=cut
+
+sub under {
+    my ( $self, $route, $cb ) = @_;
+    #; say "Adding under $route";
+    push $self->_unders->{ $route }->@*, $cb;
+    #; use Data::Dumper;
+    #; say Dumper $self->_unders;
+    return;
+}
+
 =method _route_message( NETWORK, MESSAGE )
 
 =cut
@@ -154,11 +182,10 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
             $words[0] =~ s/^$prefix//;
         }
     }
-
     my $text = join " ", @words;
-    for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
-        next if !$to_me && $route !~ m{^/}; # Prefixed route (the default)
 
+    my sub _route_cb( $route, $cb ) {
+        return if !$to_me && $route !~ m{^/}; # Prefixed route (the default)
         my $route_text = $route =~ m{^/} ? $raw_text : $text;
         my ( $route_re, @names ) = _route_re( $route );
         #; say "$route_text =~ $route_re";
@@ -172,7 +199,7 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
                 text => $route_text,
             );
 
-            my $reply = $self->_routes->{ $route }->( $msg, %params );
+            my $reply = $cb->( $msg, %params );
             if ( $reply ) {
                 my @to;
                 if ( $to =~ /^\#/ ) {
@@ -184,9 +211,20 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
                 $irc->write( join " ", "PRIVMSG", @to, $reply );
             }
 
-            # Only one route can match
-            last;
+            return 1; # We routed the message
         }
+        return;
+    }
+
+    for my $route ( sort { length $b <=> length $a } keys $self->_unders->%* ) {
+        #; say "Checking under $route";
+        my @cbs = $self->_unders->{ $route }->@*;
+        my $cb = sub { $_->(@_) for @cbs };
+        _route_cb( $route, $cb );
+    }
+    for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
+        my $cb = $self->_routes->{ $route };
+        last if _route_cb( $route, $cb );
     }
 }
 
