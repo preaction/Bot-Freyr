@@ -20,14 +20,19 @@ my %WriteMakefileArgs = (
     "Module::Build" => "0.28"
   },
   "DISTNAME" => "Freyr",
-  "EXE_FILES" => [],
+  "EXE_FILES" => [
+    "bin/freyr"
+  ],
   "LICENSE" => "perl",
   "NAME" => "Freyr",
   "PREREQ_PM" => {
     "DBM::Deep" => 0,
-    "Import::Base" => "0.005",
+    "Import::Base" => "0.006",
     "Mojo::IRC" => 0,
     "Mojolicious" => 0,
+    "Moo::Lax" => 0,
+    "Type::Tiny" => 0,
+    "curry" => 0,
     "experimental" => 0,
     "strict" => 0,
     "warnings" => 0
@@ -36,6 +41,7 @@ my %WriteMakefileArgs = (
     "Test::Compile" => 0,
     "Test::Deep" => 0,
     "Test::Differences" => 0,
+    "Test::Exception" => 0,
     "Test::More" => 0
   },
   "VERSION" => "0.001",
@@ -47,14 +53,18 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "DBM::Deep" => 0,
-  "Import::Base" => "0.005",
+  "Import::Base" => "0.006",
   "Module::Build" => "0.28",
   "Mojo::IRC" => 0,
   "Mojolicious" => 0,
+  "Moo::Lax" => 0,
   "Test::Compile" => 0,
   "Test::Deep" => 0,
   "Test::Differences" => 0,
+  "Test::Exception" => 0,
   "Test::More" => 0,
+  "Type::Tiny" => 0,
+  "curry" => 0,
   "experimental" => 0,
   "strict" => 0,
   "warnings" => 0

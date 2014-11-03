@@ -1,0 +1,35 @@
+Changelog for Freyr
+
+0.001 2014-11-03T00:30:23
+ - update dist.ini for new best practices
+ - we're only allowing 5.20 here
+ - under() routes now working
+ - be more strict with IRC and joining channels
+ - put experimental last to override Moo's warnings
+ - placeholders now work correctly
+ - punctuation is optional when using bot's name
+ - unprefixed routes should work in private message
+ - unprefixed routes should not check for no prefix
+ - unprefixed routes need the unaltered text
+ - create new bot for every test for a clean slate
+ - send the direct reply to the user, not ourselves
+ - fix tests that check for text that is not sent
+ - not all messages will have a channel
+ - rename variables to not conflict
+ - channel messages should be directed to someone
+ - basic callbacks work now
+ - add irc privmsg callback and scaffolding for routing
+ - all IRC messages must end with \r\n
+ - update to Import::Base static API
+ - add basic network and channel creation
+ - must return before doing TODO so we don't die
+ - add base Class and Role bundles
+ - mark multi-network as TODO
+ - can't have base modules in the main class
+ - add private messages as a prefix
+ - use Mojo::IRC's testing API
+ - remove extra POD sections and rebuild the readme
+ - add initial API design tests
+ - let's go with Perl 5.20! fight the system!
+ - initial skeleton
+

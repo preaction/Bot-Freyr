@@ -10,6 +10,38 @@ SYNOPSIS
 DESCRIPTION
     Freyr is an IRC bot designed for multiple networks and a web interface.
 
+METHODS
+  BUILD
+    Initialize the network in single-network mode.
+
+  channel( NAME )
+    Get a channel object, joining the channel if necessary.
+
+  route( SPEC => SUB )
+    Add a route to the entire bot. Routes must be unique. Only one route
+    will be triggered for every message.
+
+  under( SPEC => SUB )
+    Add a callback to the entire bot. Unlike route, unders do not need to be
+    unique, and multiple unders may be called for a single message.
+
+  _route_message( NETWORK, MESSAGE )
+    The default nickname for the bot
+
+    The prefix character. A shortcut to address the bot.
+
+    The default host to connect to in single-network mode.
+
+    The default port to connect to in single-network mode.
+
+    The network the bot is currently connected to.
+
+    The channel names to connect to in single-network mode.
+
+    The routes for the entire bot.
+
+    The unders for the entire bot.
+
 AUTHOR
     Doug Bell <preaction@cpan.org>
 
@@ -18,4 +50,32 @@ COPYRIGHT AND LICENSE
 
     This is free software; you can redistribute it and/or modify it under
     the same terms as the Perl 5 programming language system itself.
+
+POD ERRORS
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 220:
+        Unknown directive: =attr
+
+    Around line 224:
+        Unknown directive: =attr
+
+    Around line 228:
+        Unknown directive: =attr
+
+    Around line 232:
+        Unknown directive: =attr
+
+    Around line 236:
+        Unknown directive: =attr
+
+    Around line 240:
+        Unknown directive: =attr
+
+    Around line 244:
+        Unknown directive: =attr
+
+    Around line 248:
+        Unknown directive: =attr
 

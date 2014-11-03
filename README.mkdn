@@ -6,6 +6,10 @@ Freyr - IRC bot with multi-network and web API
 
 version 0.001
 
+# STATUS
+
+<a href="https://travis-ci.org/preaction/Freyr"><img src="https://travis-ci.org/preaction/Freyr.svg?branch=master"></a><a href="https://coveralls.io/r/preaction/Freyr"><img src="https://coveralls.io/repos/preaction/Freyr/badge.png" alt="Coverage Status" /></a>
+
 # SYNOPSIS
 
     # TODO
@@ -13,6 +17,44 @@ version 0.001
 # DESCRIPTION
 
 Freyr is an IRC bot designed for multiple networks and a web interface.
+
+# METHODS
+
+## BUILD
+
+Initialize the network in single-network mode.
+
+## channel( NAME )
+
+Get a [channel](https://metacpan.org/pod/Freyr::Channel) object, joining the channel if necessary.
+
+## route( SPEC => SUB )
+
+Add a route to the entire bot. Routes must be unique. Only one route will be triggered
+for every message.
+
+## under( SPEC => SUB )
+
+Add a callback to the entire bot. Unlike [route](https://metacpan.org/pod/route), unders do not need to be
+unique, and multiple unders may be called for a single message.
+
+## \_route\_message( NETWORK, MESSAGE )
+
+The default nickname for the bot
+
+The prefix character. A shortcut to address the bot.
+
+The default host to connect to in single-network mode.
+
+The default port to connect to in single-network mode.
+
+The [network](https://metacpan.org/pod/Freyr::Network) the bot is currently connected to.
+
+The channel names to connect to in single-network mode.
+
+The routes for the entire bot.
+
+The unders for the entire bot.
 
 # AUTHOR
 
@@ -24,3 +66,39 @@ This software is copyright (c) 2014 by Doug Bell.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
+
+# POD ERRORS
+
+Hey! **The above document had some coding errors, which are explained below:**
+
+- Around line 41:
+
+    Unknown directive: =attr
+
+- Around line 45:
+
+    Unknown directive: =attr
+
+- Around line 49:
+
+    Unknown directive: =attr
+
+- Around line 53:
+
+    Unknown directive: =attr
+
+- Around line 57:
+
+    Unknown directive: =attr
+
+- Around line 61:
+
+    Unknown directive: =attr
+
+- Around line 65:
+
+    Unknown directive: =attr
+
+- Around line 69:
+
+    Unknown directive: =attr

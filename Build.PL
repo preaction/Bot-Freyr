@@ -26,19 +26,25 @@ my %module_build_args = (
   "recursive_test_files" => 1,
   "requires" => {
     "DBM::Deep" => 0,
-    "Import::Base" => "0.005",
+    "Import::Base" => "0.006",
     "Mojo::IRC" => 0,
     "Mojolicious" => 0,
+    "Moo::Lax" => 0,
+    "Type::Tiny" => 0,
+    "curry" => 0,
     "experimental" => 0,
     "perl" => "5.020",
     "strict" => 0,
     "warnings" => 0
   },
-  "script_files" => [],
+  "script_files" => [
+    "bin/freyr"
+  ],
   "test_requires" => {
     "Test::Compile" => 0,
     "Test::Deep" => 0,
     "Test::Differences" => 0,
+    "Test::Exception" => 0,
     "Test::More" => 0
   }
 );
@@ -49,6 +55,7 @@ my %fallback_build_requires = (
   "Test::Compile" => 0,
   "Test::Deep" => 0,
   "Test::Differences" => 0,
+  "Test::Exception" => 0,
   "Test::More" => 0
 );
 
