@@ -80,6 +80,18 @@ has channels => (
     default => sub { [] },
 );
 
+=attr plugins
+
+The plugins to attach to this bot, keyed by name.
+
+=cut
+
+has plugins => (
+    is => 'ro',
+    isa => HashRef[InstanceOf['Freyr::Plugin']],
+    default => sub { {} },
+);
+
 =attr _routes
 
 The routes for the entire bot.
@@ -114,6 +126,9 @@ sub BUILD( $self, @ ) {
     if ( my $network = $self->network ) {
         $network->irc->on( irc_privmsg => $self->curry::weak::_route_message( $network ) );
         $network->channel( $_ ) for $self->channels->@*;
+    }
+    for my $plugin ( values $self->plugins->%* ) {
+        $plugin->register( $self );
     }
 }
 
