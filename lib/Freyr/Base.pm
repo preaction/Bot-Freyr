@@ -11,24 +11,23 @@ our @IMPORT_MODULES = (
     'warnings',
     'feature' => [qw( :5.20 )],
     'curry', 'curry::weak',
-    'experimental' => [qw( signatures postderef lexical_subs )],
+    '>experimental' => [qw( signatures postderef lexical_subs )],
     'Freyr',
 );
 
 # Optional bundles
 my @class_common = (
     'Types::Standard' => [qw( :all )],
-    'experimental' => [qw( signatures postderef lexical_subs )],
 );
 
 our %IMPORT_BUNDLES = (
     Test => [qw( Test::More Test::Deep Test::Differences Test::Exception )],
     Class => [
-        qw( Moo::Lax ),
+        '<Moo::Lax',
         @class_common,
     ],
     Role => [
-        qw( Moo::Role::Lax ),
+        '<Moo::Role::Lax',
         @class_common,
     ],
 );
