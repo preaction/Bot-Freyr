@@ -30,6 +30,17 @@ our %IMPORT_BUNDLES = (
         '<Moo::Role::Lax',
         @class_common,
     ],
+    Plugin => [
+        '<Moo::Lax',
+        @class_common,
+        sub {
+            my ( $bundles, $args ) = @_;
+            no strict 'refs';
+            require Freyr::Plugin;
+            push @{ $args->{package} . "::ISA" }, 'Freyr::Plugin';
+            return;
+        },
+    ],
 );
 
 1;

@@ -5,8 +5,7 @@ use Freyr::Base 'Test';
 
 {
     package Test::Freyr::Plugin;
-    use Freyr::Base 'Class';
-    extends 'Freyr::Plugin';
+    use Freyr::Base 'Plugin';
 
     sub register {
         my ( $self, $bot ) = @_;
