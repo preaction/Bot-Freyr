@@ -1,6 +1,11 @@
 Changelog for Freyr
 
-0.001 2014-11-03T00:30:23
+0.001 2014-11-06T06:18:01
+ - make sure all our subs use signatures
+ - make sure experimental warnings are turned off
+ - add basic plugin class
+ - don't allow treating perl version as a number
+ - update build from new dist.ini
  - update dist.ini for new best practices
  - we're only allowing 5.20 here
  - under() routes now working

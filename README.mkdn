@@ -18,6 +18,44 @@ version 0.001
 
 Freyr is an IRC bot designed for multiple networks and a web interface.
 
+# ATTRIBUTES
+
+## nick
+
+The default nickname for the bot
+
+## prefix
+
+The prefix character. A shortcut to address the bot.
+
+## host
+
+The default host to connect to in single-network mode.
+
+## port
+
+The default port to connect to in single-network mode.
+
+## network
+
+The [network](https://metacpan.org/pod/Freyr::Network) the bot is currently connected to.
+
+## channels
+
+The channel names to connect to in single-network mode.
+
+## plugins
+
+The plugins to attach to this bot, keyed by name.
+
+## \_routes
+
+The routes for the entire bot.
+
+## \_unders
+
+The unders for the entire bot.
+
 # METHODS
 
 ## BUILD
@@ -40,22 +78,6 @@ unique, and multiple unders may be called for a single message.
 
 ## \_route\_message( NETWORK, MESSAGE )
 
-The default nickname for the bot
-
-The prefix character. A shortcut to address the bot.
-
-The default host to connect to in single-network mode.
-
-The default port to connect to in single-network mode.
-
-The [network](https://metacpan.org/pod/Freyr::Network) the bot is currently connected to.
-
-The channel names to connect to in single-network mode.
-
-The routes for the entire bot.
-
-The unders for the entire bot.
-
 # AUTHOR
 
 Doug Bell <preaction@cpan.org>
@@ -66,39 +88,3 @@ This software is copyright (c) 2014 by Doug Bell.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
-
-# POD ERRORS
-
-Hey! **The above document had some coding errors, which are explained below:**
-
-- Around line 41:
-
-    Unknown directive: =attr
-
-- Around line 45:
-
-    Unknown directive: =attr
-
-- Around line 49:
-
-    Unknown directive: =attr
-
-- Around line 53:
-
-    Unknown directive: =attr
-
-- Around line 57:
-
-    Unknown directive: =attr
-
-- Around line 61:
-
-    Unknown directive: =attr
-
-- Around line 65:
-
-    Unknown directive: =attr
-
-- Around line 69:
-
-    Unknown directive: =attr

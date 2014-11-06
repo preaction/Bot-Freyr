@@ -1,5 +1,5 @@
 requires "DBM::Deep" => "0";
-requires "Import::Base" => "0.006";
+requires "Import::Base" => "0.009";
 requires "Mojo::IRC" => "0";
 requires "Mojolicious" => "0";
 requires "Moo::Lax" => "0";
