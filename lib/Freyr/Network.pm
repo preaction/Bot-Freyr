@@ -51,8 +51,7 @@ has irc => (
     is => 'ro',
     isa => InstanceOf['Mojo::IRC'],
     lazy => 1,
-    default => sub {
-        my ( $self ) = @_;
+    default => sub ( $self ) {
         my $irc = Mojo::IRC->new(
             nick => $self->nick,
             user => 'freyr',
@@ -61,8 +60,7 @@ has irc => (
         $irc->on( close => sub { warn "CLOSED: " . join " ", @_ } );
         $irc->on( error => sub { warn "IRC ERROR: " . join " ", @_ } );
         $irc->on( irc_error => sub { warn "IRC ERROR: " . join " ", @_ } );
-        $irc->connect( sub {
-            my ( $irc, $err ) = @_;
+        $irc->connect( sub ( $irc, $err ) {
             warn "CONNECT ERROR: $err" if $err;
             $self->_connected( 1 );
             # Connect to all the channels we want
@@ -105,8 +103,7 @@ Get the L<channel|Freyr::Channel> with the given name, joining it if necessary.
 
 =cut
 
-sub channel {
-    my ( $self, $name ) = @_;
+sub channel( $self, $name ) {
     my $channel = $self->_channels->{ $name };
     if ( !$channel ) {
         $channel = $self->_channels->{ $name }

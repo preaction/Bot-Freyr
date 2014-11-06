@@ -9,7 +9,7 @@ Register this plugin with the bot. This method should set up routes and unders.
 
 =cut
 
-sub register { ... }
+sub register( $self, $bot ) { ... }
 
 1;
 
@@ -19,8 +19,7 @@ sub register { ... }
     use Freyr 'Class';
     extends 'Freyr::Plugin';
 
-    sub register {
-        my ( $self, $bot ) = @_;
+    sub register( $self, $bot ) {
         $bot->route( ... );
         $bot->under( ... );
     }

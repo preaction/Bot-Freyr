@@ -138,8 +138,7 @@ Get a L<channel|Freyr::Channel> object, joining the channel if necessary.
 
 =cut
 
-sub channel {
-    my ( $self, $name ) = @_;
+sub channel( $self, $name ) {
     return $self->network->channel( $name );
 }
 
@@ -161,8 +160,7 @@ unique, and multiple unders may be called for a single message.
 
 =cut
 
-sub under {
-    my ( $self, $route, $cb ) = @_;
+sub under( $self, $route, $cb ) {
     #; say "Adding under $route";
     push $self->_unders->{ $route }->@*, $cb;
     #; use Data::Dumper;
@@ -243,8 +241,7 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
     }
 }
 
-sub _route_re {
-    my ( $route ) = @_;
+sub _route_re( $route ) {
     $route =~ s{^/}{};
     while ( $route =~ /:/ ) {
         $route =~ s/\s+\:(\w+)([?]?)/( $2 eq '?' ? '\\s*' : '\\s+' ) . "(?<$1>\\S+)$2"/e;
