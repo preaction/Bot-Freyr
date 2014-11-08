@@ -4,13 +4,11 @@ package Freyr::Plugin::Say;
 use Freyr::Base 'Plugin';
 use Getopt::Long qw( GetOptionsFromString );
 
-sub register {
-    my ( $self, $bot ) = @_;
+sub register( $self, $bot ) {
     $bot->route( 'say' => $self->curry::weak::speak );
 }
 
-sub speak {
-    my ( $self, $msg ) = @_;
+sub speak( $self, $msg ) {
     my %opt = (
         to => $msg->channel ? $msg->channel->name : $msg->nick,
     );
