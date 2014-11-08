@@ -24,4 +24,5 @@ my $bot = Freyr->new(
     },
 );
 
+$bot->route( quit => sub ( $msg ) { $msg->bot->stop } );
 $bot->start;

@@ -2,6 +2,7 @@
 # Do not connect to live servers during testing
 BEGIN { $ENV{ MOJO_IRC_OFFLINE } = 1 };
 use Freyr::Base 'Test';
+use Mojo::IOLoop;
 
 subtest 'connect to networks' => sub {
     subtest 'single network' => sub {
@@ -341,6 +342,29 @@ subtest 'message routing' => sub {
             };
         };
     };
+};
+
+subtest 'start/stop' => sub {
+    my $bot = Freyr->new(
+        nick => 'freyr',
+        host => 'irc.freenode.net',
+        prefix => '!',
+        channels => [ '#defocus' ],
+    );
+    my $irc = $bot->network->irc;
+    $bot->route( quit => sub ( $msg ) {
+        pass 'Got quit message';
+        $msg->bot->stop;
+        return;
+    } );
+    my $timeout = Mojo::IOLoop->timer( 5, sub { fail "Timeout reached"; shift->stop } );
+    Mojo::IOLoop->timer( 0, sub {
+        $irc->from_irc_server( ':preaction!doug@example.com PRIVMSG #defocus !quit' . "\r\n" );
+    } );
+    $irc->{to_irc_server} = '';
+    $bot->start;
+    Mojo::IOLoop->remove( $timeout );
+    ok !$irc->{to_irc_server}, 'nothing returned' or diag $irc->{to_irc_server};
 };
 
 done_testing;
