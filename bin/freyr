@@ -5,6 +5,8 @@ package freyr;
 use Freyr::Base;
 use Getopt::Long qw( GetOptionsFromArray );
 
+use Freyr::Plugin::Say;
+
 my %opt = (
     nick => 'freyr',
 );
@@ -17,6 +19,9 @@ my $bot = Freyr->new(
     prefix => '!',
     host => $ARGV[0],
     channels => [ @ARGV[1..$#ARGV] ],
+    plugins => {
+        say => Freyr::Plugin::Say->new,
+    },
 );
 
 Mojo::IOLoop->start;
