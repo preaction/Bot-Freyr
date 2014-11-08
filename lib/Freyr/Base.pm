@@ -21,7 +21,10 @@ my @class_common = (
 );
 
 our %IMPORT_BUNDLES = (
-    Test => [qw( Test::More Test::Deep Test::Differences Test::Exception )],
+    Test => [
+        qw( Test::More Test::Deep Test::Differences Test::Exception ),
+        'Freyr::Test' => [qw( test_irc_msg )],
+    ],
     Class => [
         '<Moo::Lax',
         @class_common,

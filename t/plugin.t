@@ -32,20 +32,6 @@ subtest 'basic plugin' => sub {
         }
     };
 
-    my $test_msg = sub( $irc, $send, $test, $recv ) {
-        return sub {
-            $irc->{to_irc_server} = '';
-            $irc->from_irc_server( $send . "\r\n" );
-            if ( $test eq 'like' ) {
-                like $irc->{to_irc_server}, qr{$recv\r\n};
-            }
-            elsif ( $test eq 'unlike' ) {
-                unlike $irc->{to_irc_server}, qr{$recv\r\n};
-            }
-            $irc->{to_irc_server} = '';
-        }
-    };
-
     $plugin = Test::Freyr::Plugin->new;
     $bot = Freyr->new(
         nick => 'freyr',
@@ -58,15 +44,15 @@ subtest 'basic plugin' => sub {
     );
     my $irc = $bot->network->irc;
 
-    subtest 'prefixed message is responded to' => $test_msg->(
+    subtest 'prefixed message is responded to' => test_irc_msg(
         $irc, ':preaction!doug@example.com PRIVMSG #defocus !greet',
         like => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
     );
-    subtest 'private message is valid prefix' => $test_msg->(
+    subtest 'private message is valid prefix' => test_irc_msg(
         $irc, ':preaction!doug@example.com PRIVMSG freyr greet',
         like => qr{PRIVMSG preaction Hello, preaction!},
     );
-    subtest 'unprefixed message is not responded to' => $test_msg->(
+    subtest 'unprefixed message is not responded to' => test_irc_msg(
         $irc, ':preaction!doug@example.com PRIVMSG #defocus greet',
         unlike => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
     );

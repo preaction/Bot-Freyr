@@ -18,33 +18,17 @@ my $bot = Freyr->new(
 );
 my $irc = $bot->network->irc;
 
-my $test_msg = sub( $irc, $send, $test, $recv ) {
-    return sub {
-        $irc->{to_irc_server} = '';
-        $irc->from_irc_server( $send . "\r\n" );
-        if ( $test eq 'like' ) {
-            like $irc->{to_irc_server}, qr{$recv\r\n};
-        }
-        elsif ( $test eq 'unlike' ) {
-            unlike $irc->{to_irc_server}, qr{$recv\r\n};
-        }
-        unlike $irc->{to_irc_server}, qr{preaction: \Q$irc\E\r\n},
-            'returned IRC object is not spoken';
-        $irc->{to_irc_server} = '';
-    }
-};
-
-subtest 'say command' => $test_msg->(
+subtest 'say command' => test_irc_msg(
     $irc, ':preaction!doug@example.com PRIVMSG #defocus !say Hello World!',
     like => qr{PRIVMSG \#defocus Hello World!},
 );
 
-subtest 'say to channel' => $test_msg->(
+subtest 'say to channel' => test_irc_msg(
     $irc, ':preaction!doug@example.com PRIVMSG freyr say -t #defocus Hello World!',
     like => qr{PRIVMSG \#defocus Hello World!},
 );
 
-subtest 'say to user' => $test_msg->(
+subtest 'say to user' => test_irc_msg(
     $irc, ':preaction!doug@example.com PRIVMSG #defocus !say --to preaction Hello World!',
     like => qr{PRIVMSG preaction Hello World!},
 );
