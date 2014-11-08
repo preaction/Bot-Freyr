@@ -203,13 +203,14 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
         my ( $route_re, @names ) = _route_re( $route );
         #; say "$route_text =~ $route_re";
         if ( $route_text =~ $route_re ) {
+            my $remain_text = $route_text =~ s/$route_re//r;
             my %params = %+;
             my $msg = Freyr::Message->new(
                 bot => $self,
                 network => $network,
                 ( $channel ? ( channel => $network->channel( $channel ) ) : () ),
                 nick => $from_nick,
-                text => $route_text,
+                text => $remain_text,
             );
 
             my $reply = $cb->( $msg, %params );
