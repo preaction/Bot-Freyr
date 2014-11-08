@@ -2,6 +2,7 @@ package Freyr;
 # ABSTRACT: IRC bot with multi-network and web API
 
 use Freyr::Base 'Class';
+use Scalar::Util qw( blessed );
 use Freyr::Network;
 use Freyr::Message;
 
@@ -214,7 +215,10 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
             );
 
             my $reply = $cb->( $msg, %params );
-            if ( $reply ) {
+            # Handle simple returned replies
+            # Since Mojo::IRC->write() returns the Mojo::IRC object, make sure
+            # we don't allow that as a response.
+            if ( $reply && !( blessed $reply && $reply->isa( 'Mojo::IRC' ) ) ) {
                 my @to;
                 if ( $to =~ /^\#/ ) {
                     @to = ( $to, "$from_nick:" );

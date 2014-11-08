@@ -28,6 +28,8 @@ my $test_msg = sub( $irc, $send, $test, $recv ) {
         elsif ( $test eq 'unlike' ) {
             unlike $irc->{to_irc_server}, qr{$recv\r\n};
         }
+        unlike $irc->{to_irc_server}, qr{preaction: \Q$irc\E\r\n},
+            'returned IRC object is not spoken';
         $irc->{to_irc_server} = '';
     }
 };

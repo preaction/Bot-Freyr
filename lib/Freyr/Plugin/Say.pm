@@ -16,7 +16,6 @@ sub speak( $self, $msg ) {
         'to|t=s',
     );
     $msg->network->irc->write( PRIVMSG => $opt{to}, @$words );
-    return;
 }
 
 1;
