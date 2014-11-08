@@ -1,4 +1,5 @@
 package Freyr::Channel;
+# ABSTRACT: A single connected IRC channel
 
 use Freyr::Base 'Class';
 
