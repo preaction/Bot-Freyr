@@ -93,6 +93,19 @@ has plugins => (
     default => sub { {} },
 );
 
+=attr ioloop
+
+The Mojo::IOLoop the bot should use.
+
+=cut
+
+has ioloop => (
+    is => 'ro',
+    isa => InstanceOf['Mojo::IOLoop'],
+    default => sub { Mojo::IOLoop->singleton },
+    handles => [qw( start stop )],
+);
+
 =attr _routes
 
 The routes for the entire bot.

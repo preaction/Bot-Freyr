@@ -24,4 +24,4 @@ my $bot = Freyr->new(
     },
 );
 
-Mojo::IOLoop->start;
+$bot->start;
