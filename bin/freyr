@@ -14,6 +14,7 @@ GetOptionsFromArray( \@ARGV, \%opt,
 
 my $bot = Freyr->new(
     nick => $opt{nick},
+    prefix => '!',
     host => $ARGV[0],
     channels => [ @ARGV[1..$#ARGV] ],
 );
