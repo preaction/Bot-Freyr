@@ -3,13 +3,14 @@ package Freyr::Plugin;
 
 use Freyr::Base 'Class';
 
-=method register( bot )
+=method register( ROUTE )
 
-Register this plugin with the bot. This method should set up routes and unders.
+Register this plugin with the given L<Freyr::Route|route>. This method should
+set up routes and unders.
 
 =cut
 
-sub register( $self, $bot ) { ... }
+sub register( $self, $route ) { ... }
 
 1;
 
@@ -18,10 +19,9 @@ sub register( $self, $bot ) { ... }
     package My::Plugin;
     use Freyr 'Class';
     extends 'Freyr::Plugin';
-
-    sub register( $self, $bot ) {
-        $bot->route( ... );
-        $bot->under( ... );
+    sub register( $self, $route ) {
+        $route->msg( ... );
+        $route->under( ... );
     }
 
     package main;

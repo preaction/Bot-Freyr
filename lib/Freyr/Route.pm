@@ -111,14 +111,16 @@ sub dispatch( $self, $msg ) {
     }
     elsif ( $msg->channel ) {
         for my $prefix ( $self->prefix->@* ) {
+            #; say "Checking prefix: $text =~ $prefix";
             if ( $text =~ /^($prefix\s*)/ ) {
                 $to_me = 1;
                 $prefix_text = $1;
-                $text =~ s/$prefix\s*//;
+                $text =~ s/^$prefix_text//;
                 last;
             }
         }
     }
+    #; say "To me: $to_me";
 
     # Decide if the route matches the message, and if so, deliver to the destination
     my $_route_cb = sub ( $route, $in_msg, $dest ) {
@@ -173,6 +175,7 @@ sub dispatch( $self, $msg ) {
     }
     for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
         my $dest = $self->_routes->{ $route };
+        #; say "Trying $route -> $dest";
         my $reply = $_route_cb->( $route, $msg, $dest );
         return $reply if $reply;
     }

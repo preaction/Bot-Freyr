@@ -84,7 +84,8 @@ has channels => (
 
 =attr plugins
 
-The plugins to attach to this bot, keyed by name.
+The plugins to attach to this bot, keyed by route. The plugin will be
+registered with the given route.
 
 =cut
 
@@ -139,8 +140,9 @@ sub BUILD( $self, @ ) {
         $network->irc->on( irc_privmsg => $self->curry::weak::_route_message( $network ) );
         $network->channel( $_ ) for $self->channels->@*;
     }
-    for my $plugin ( values $self->plugins->%* ) {
-        $plugin->register( $self );
+    for my $route ( keys $self->plugins->%* ) {
+        my $r = $self->route->child( $route );
+        $self->plugins->{ $route }->register( $r );
     }
 }
 

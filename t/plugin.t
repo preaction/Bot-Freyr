@@ -7,9 +7,8 @@ use Freyr::Base 'Test';
     package Test::Freyr::Plugin;
     use Freyr::Base 'Plugin';
 
-    sub register {
-        my ( $self, $bot ) = @_;
-        $bot->route( 'greet' => sub {
+    sub register( $self, $r ) {
+        $r->msg( '' => sub {
             my ( $msg, %params ) = @_;
             return sprintf 'Hello, %s!', $msg->nick;
         } );
