@@ -295,7 +295,7 @@ subtest 'message routing' => sub {
                 );
                 my $irc = $bot->network->irc;
                 my $seen = 0;
-                $bot->under( '' => sub {
+                $bot->route->under( '' => sub {
                     subtest 'cb args' => $test_cb_args->( @_ );
                     my ( $msg ) = @_;
                     $seen++;
@@ -322,7 +322,7 @@ subtest 'message routing' => sub {
                 );
                 my $irc = $bot->network->irc;
                 my $seen = 0;
-                $bot->under( '/' => sub {
+                $bot->route->under( '/' => sub {
                     subtest 'cb args' => $test_cb_args->( @_ );
                     my ( $msg ) = @_;
                     $seen++;

@@ -5,6 +5,7 @@ use Freyr::Base 'Class';
 use Scalar::Util qw( blessed );
 use Freyr::Network;
 use Freyr::Message;
+use Freyr::Route;
 
 =attr nick
 
@@ -106,28 +107,25 @@ has ioloop => (
     handles => [qw( start stop )],
 );
 
-=attr _routes
+=attr _route
 
-The routes for the entire bot.
-
-=cut
-
-has _routes => (
-    is => 'ro',
-    isa => HashRef,
-    default => sub { {} },
-);
-
-=attr _unders
-
-The unders for the entire bot.
+The L<Freyr::Route> for the entire bot.
 
 =cut
 
-has _unders => (
+has _route => (
     is => 'ro',
-    isa => HashRef[ArrayRef[CodeRef]],
-    default => sub { {} },
+    isa => InstanceOf['Freyr::Route'],
+    lazy => 1,
+    default => sub ( $self ) {
+        my $nick = $self->nick;
+        Freyr::Route->new(
+            prefix => [
+                $self->prefix,
+                qr{$nick[:,\s]},
+            ],
+        );
+    },
 );
 
 =method BUILD
@@ -156,30 +154,18 @@ sub channel( $self, $name ) {
     return $self->network->channel( $name );
 }
 
-=method route( SPEC => SUB )
+=method route( ROUTE => DEST )
 
 Add a route to the entire bot. Routes must be unique. Only one route will be triggered
 for every message.
 
 =cut
 
-sub route( $self, $route, $cb ) {
-    $self->_routes->{ $route } = $cb;
-}
-
-=method under( SPEC => SUB )
-
-Add a callback to the entire bot. Unlike L<route>, unders do not need to be
-unique, and multiple unders may be called for a single message.
-
-=cut
-
-sub under( $self, $route, $cb ) {
-    #; say "Adding under $route";
-    push $self->_unders->{ $route }->@*, $cb;
-    #; use Data::Dumper;
-    #; say Dumper $self->_unders;
-    return;
+sub route( $self, $route=undef, $dest=undef ) {
+    if ( $route && $dest ) {
+        return $self->_route->msg( $route, $dest );
+    }
+    return $self->_route;
 }
 
 =method _route_message( NETWORK, MESSAGE )
@@ -187,85 +173,38 @@ sub under( $self, $route, $cb ) {
 =cut
 
 sub _route_message( $self, $network, $irc, $irc_msg ) {
-    my ( $to, @words ) = @{ $irc_msg->{params} };
+    my ( $to, @words ) = $irc_msg->{params}->@*;
     my $raw_text = join " ", @words;
-    my $me = $self->nick;
-    my $prefix = $self->prefix;
     my ( $from_nick ) = $irc_msg->{prefix} =~ /^([^!]+)!([^@]+)\@(.+)$/;
-    my $channel;
-
-    my ( $to_me );
-    if ( $to eq $me ) {
-        $to_me = 1;
+    my %msg = (
+        bot => $self,
+        network => $network,
+        nick => $from_nick,
+        to => $to,
+        text => $raw_text,
+        raw => $raw_text,
+    );
+    if ( $to =~ /^\#/ ) {
+        $msg{ channel } = $network->channel( $to );
     }
-    elsif ( $to =~ /^\#/ ) {
-        $channel = $to;
-        if ( $words[0] =~ /^$me[:,]?$/ ) {
-            $to_me = 1;
-            shift @words;
+    my $msg = Freyr::Message->new( %msg );
+
+    my $reply = $self->_route->dispatch( $msg );
+    # Handle simple returned replies
+    # Since Mojo::IRC->write() returns the Mojo::IRC object, make sure
+    # we don't allow that as a response.
+    if ( $reply && !( blessed $reply && $reply->isa( 'Mojo::IRC' ) ) ) {
+        my @to;
+        if ( $msg->channel ) {
+            @to = ( $msg->channel->name, $msg->nick . ":" );
         }
-        elsif ( $words[0] =~ /^$prefix/ ) {
-            $to_me = 1;
-            $words[0] =~ s/^$prefix//;
+        else {
+            @to = ( $msg->nick );
         }
-    }
-    my $text = join " ", @words;
-
-    my sub _route_cb( $route, $cb ) {
-        return if !$to_me && $route !~ m{^/}; # Prefixed route (the default)
-        my $route_text = $route =~ m{^/} ? $raw_text : $text;
-        my ( $route_re, @names ) = _route_re( $route );
-        #; say "$route_text =~ $route_re";
-        if ( $route_text =~ $route_re ) {
-            my $remain_text = $route_text =~ s/$route_re//r;
-            my %params = %+;
-            my $msg = Freyr::Message->new(
-                bot => $self,
-                network => $network,
-                ( $channel ? ( channel => $network->channel( $channel ) ) : () ),
-                nick => $from_nick,
-                text => $remain_text,
-            );
-
-            my $reply = $cb->( $msg, %params );
-            # Handle simple returned replies
-            # Since Mojo::IRC->write() returns the Mojo::IRC object, make sure
-            # we don't allow that as a response.
-            if ( $reply && !( blessed $reply && $reply->isa( 'Mojo::IRC' ) ) ) {
-                my @to;
-                if ( $to =~ /^\#/ ) {
-                    @to = ( $to, "$from_nick:" );
-                }
-                else {
-                    @to = ( $from_nick );
-                }
-                $irc->write( join " ", "PRIVMSG", @to, $reply );
-            }
-
-            return 1; # We routed the message
-        }
-        return;
+        $msg->network->irc->write( join " ", "PRIVMSG", @to, $reply );
     }
 
-    for my $route ( sort { length $b <=> length $a } keys $self->_unders->%* ) {
-        #; say "Checking under $route";
-        my @cbs = $self->_unders->{ $route }->@*;
-        my $cb = sub { $_->(@_) for @cbs };
-        _route_cb( $route, $cb );
-    }
-    for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
-        my $cb = $self->_routes->{ $route };
-        last if _route_cb( $route, $cb );
-    }
-}
-
-sub _route_re( $route ) {
-    $route =~ s{^/}{};
-    while ( $route =~ /:/ ) {
-        $route =~ s/\s+\:(\w+)([?]?)/( $2 eq '?' ? '\\s*' : '\\s+' ) . "(?<$1>\\S+)$2"/e;
-    }
-    #; say $route;
-    return qr{^$route};
+    return $reply;
 }
 
 1;
