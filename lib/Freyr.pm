@@ -195,15 +195,20 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
     # Handle simple returned replies
     # Since Mojo::IRC->write() returns the Mojo::IRC object, make sure
     # we don't allow that as a response.
-    if ( $reply && !( blessed $reply && $reply->isa( 'Mojo::IRC' ) ) ) {
-        my @to;
-        if ( $msg->channel ) {
-            @to = ( $msg->channel->name, $msg->nick . ":" );
+    if ( $reply ) {
+        if ( blessed $reply && $reply->isa( 'Freyr::Error' ) ) {
+            $msg->network->irc->write( join " ", "PRIVMSG", $msg->nick, "ERROR:", $reply->error );
         }
-        else {
-            @to = ( $msg->nick );
+        elsif ( !( blessed $reply && $reply->isa( 'Mojo::IRC' ) ) ) {
+            my @to;
+            if ( $msg->channel ) {
+                @to = ( $msg->channel->name, $msg->nick . ":" );
+            }
+            else {
+                @to = ( $msg->nick );
+            }
+            $msg->network->irc->write( join " ", "PRIVMSG", @to, $reply );
         }
-        $msg->network->irc->write( join " ", "PRIVMSG", @to, $reply );
     }
 
     return $reply;

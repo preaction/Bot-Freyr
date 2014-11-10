@@ -3,6 +3,7 @@
 BEGIN { $ENV{ MOJO_IRC_OFFLINE } = 1 };
 use Freyr::Base 'Test';
 use Mojo::IOLoop;
+use Freyr::Error;
 
 subtest 'connect to networks' => sub {
     subtest 'single network' => sub {
@@ -365,6 +366,31 @@ subtest 'message routing' => sub {
                 ok !$irc->{to_irc_server}, 'no response to private message' or diag $irc->{to_irc_server};
                 $irc->{to_irc_server} = '';
                 is $seen, 3, 'all messages are seen';
+            };
+
+            subtest 'under errors' => sub {
+                $bot = Freyr->new(
+                    nick => 'freyr',
+                    host => 'irc.freenode.net',
+                    prefix => '!',
+                    channels => [ '#defocus' ],
+                );
+                my $irc = $bot->network->irc;
+
+                my $seen = 0;
+                $bot->route->under( 'error' => sub {
+                    subtest 'cb args' => $test_cb_args->( @_ );
+                    my ( $msg ) = @_;
+                    $seen++;
+                    return Freyr::Error->new(
+                        error => 'My error',
+                    );
+                } );
+
+                $irc->{to_irc_server} = '';
+                $irc->from_irc_server( ':preaction!doug@example.com PRIVMSG #defocus !error' . "\r\n" );
+                like $irc->{to_irc_server}, qr{PRIVMSG preaction ERROR: My error\r\n},
+                    'error message is displayed' or diag $irc->{to_irc_server};
             };
 
         };
