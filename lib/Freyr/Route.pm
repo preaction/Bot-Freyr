@@ -61,6 +61,9 @@ be unique, and multiple unders may be called for a single message.
 Unders are called least-specific to most-specific, to allow unders to modify
 the routing chain.
 
+If an under returns a L<Freyr::Error>, all routing will stop. Any other return
+from an under is ignored.
+
 =cut
 
 sub under( $self, $route, $dest ) {
@@ -167,10 +170,20 @@ sub dispatch( $self, $msg ) {
         return;
     };
 
+    # Unders are shortest (least-specific) to longest (most-specific) to allow
+    # for interruption of routing.
     for my $route ( sort { length $a <=> length $b } keys $self->_unders->%* ) {
         #; say "Checking under $route";
         for my $dest ( $self->_unders->{ $route }->@* ) {
-            $_route_cb->( $route, $msg, $dest );
+            my $reply = $_route_cb->( $route, $msg, $dest );
+            if ( $reply ) {
+                if ( blessed $reply && $reply->isa( 'Freyr::Error' ) ) {
+                    return $reply;
+                }
+                else {
+                    warn "Got reply '$reply' from under '$route'. Ignoring...";
+                }
+            }
         }
     }
     for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {

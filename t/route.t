@@ -4,6 +4,7 @@ BEGIN { $ENV{ MOJO_IRC_OFFLINE } = 1 };
 use Freyr::Base 'Test';
 use Freyr::Route;
 use Freyr::Message;
+use Freyr::Error;
 
 my $bot = Freyr->new(
     nick => 'freyr',
@@ -139,6 +140,66 @@ subtest 'under routes' => sub {
             ok !$r->dispatch( $msg );
             is $seen, 2;
         };
+    };
+
+    subtest 'stop routing' => sub {
+        my $r = Freyr::Route->new(
+            prefix => [ '!', qr{freyr[:,]} ],
+        );
+        my ( $shallow, $deep ) = ( 0, 0 );
+
+        $r->under( '' => sub ( $msg ) {
+            $shallow++;
+            if ( $msg->text =~ /shallow/ ) {
+                return Freyr::Error->new(
+                    message => $msg,
+                    error => "Shallow error!",
+                );
+            }
+        } );
+
+        $r->under( 'deep' => sub {
+            $deep++;
+            return Freyr::Error->new(
+                message => $_[0],
+                error => "Deep error!",
+            );
+        } );
+
+        subtest 'shallow error' => sub {
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!shallow',
+            );
+            my $reply = $r->dispatch( $msg );
+            isa_ok $reply, 'Freyr::Error';
+            is $reply->error, 'Shallow error!';
+            is $shallow, 1, 'shallow was reached';
+            is $deep, 0, 'deep was not reached';
+        };
+
+        subtest 'deep error' => sub {
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!deep',
+            );
+            my $reply = $r->dispatch( $msg );
+            isa_ok $reply, 'Freyr::Error';
+            is $reply->error, 'Deep error!';
+            is $shallow, 2, 'shallow was reached';
+            is $deep, 1, 'deep was reached';
+        };
+
+        subtest 'no error' => sub {
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!foo',
+            );
+            ok !$r->dispatch( $msg );
+            is $shallow, 3, 'shallow was reached';
+            is $deep, 1, 'deep was not reached';
+        };
+
     };
 };
 
