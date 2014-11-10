@@ -141,7 +141,7 @@ sub dispatch( $self, $msg ) {
             my @msg_args = (
                 map {; $_ => $in_msg->$_ } 
                 grep { $in_msg->$_ }
-                qw( bot network channel nick to raw )
+                qw( bot network channel nick to raw hostmask )
             );
 
             if ( blessed $dest && $dest->isa( 'Freyr::Route' ) ) {

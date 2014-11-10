@@ -148,6 +148,7 @@ subtest 'message routing' => sub {
                 }
                 is $msg->network, $bot->network;
                 is $msg->nick, 'preaction';
+                is $msg->hostmask, 'preaction!doug@example.com';
             }
         };
 

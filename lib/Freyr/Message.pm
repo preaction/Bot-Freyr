@@ -51,6 +51,17 @@ has nick => (
     required => 1,
 );
 
+=attr hostmask
+
+The hostmask of the sender of this message.
+
+=cut
+
+has hostmask => (
+    is => 'ro',
+    isa => Str,
+);
+
 =attr to
 
 Who the message was sent to. This will be either the nickname of the bot or the name of

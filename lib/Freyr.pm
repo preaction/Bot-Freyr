@@ -182,6 +182,7 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
         bot => $self,
         network => $network,
         nick => $from_nick,
+        hostmask => $irc_msg->{prefix},
         to => $to,
         text => $raw_text,
         raw => $raw_text,
