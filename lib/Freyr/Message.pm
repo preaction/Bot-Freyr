@@ -105,4 +105,17 @@ has raw => (
     default => sub ( $self ) { $self->text },
 );
 
+=method clone( ARGS )
+
+Clone this message, overriding with the given ARGS.
+
+=cut
+
+sub clone( $self, %args ) {
+    return __PACKAGE__->new(
+        %$self,
+        %args,
+    );
+}
+
 1;

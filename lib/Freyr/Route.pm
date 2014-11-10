@@ -138,24 +138,16 @@ sub dispatch( $self, $msg ) {
             my %params = %+;
             my $reply;
 
-            my @msg_args = (
-                map {; $_ => $in_msg->$_ } 
-                grep { $in_msg->$_ }
-                qw( bot network channel nick to raw hostmask )
-            );
-
             if ( blessed $dest && $dest->isa( 'Freyr::Route' ) ) {
                 #; say "Going down with: ${prefix_text}${remain_text}";
-                my $out_msg = Freyr::Message->new(
-                    @msg_args,
+                my $out_msg = $in_msg->clone(
                     # Reattach the prefix for the children
                     text => $prefix_text . $remain_text,
                 );
                 $reply = $dest->dispatch( $out_msg );
             }
             elsif ( ref $dest eq 'CODE' ) {
-                my $out_msg = Freyr::Message->new(
-                    @msg_args,
+                my $out_msg = $in_msg->clone(
                     text => $remain_text,
                 );
                 $reply = $dest->( $out_msg, %params );
