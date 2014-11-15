@@ -141,7 +141,7 @@ sub BUILD( $self, @ ) {
         $network->channel( $_ ) for $self->channels->@*;
     }
     for my $route ( keys $self->plugins->%* ) {
-        my $r = $self->route->child( $route );
+        my $r = $self->route->under( $route );
         $self->plugins->{ $route }->register( $r );
     }
 }

@@ -38,14 +38,13 @@ Register this plugin and all its plugins with the bot.
 =cut
 
 sub register( $self, $route ) {
-    $route->under( '' => $self->curry::weak::authorize );
     for my $plugin_route ( keys $self->plugins->%* ) {
         my $plugin = $self->plugins->{ $plugin_route };
         if ( ref $plugin eq 'CODE' ) {
             $route->msg( $plugin_route => $plugin );
         }
         elsif ( blessed $plugin && $plugin->isa( 'Freyr::Plugin' ) ) {
-            my $r = $route->child( $plugin_route );
+            my $r = $route->under( $plugin_route, $self->curry::weak::authorize );
             $plugin->register( $r );
         }
     }
@@ -64,11 +63,11 @@ sub authorize( $self, $msg ) {
             my $re = join ".*", map { quotemeta $_ } split /\*/, $mask, -1;
             #; say "Auth mask: $mask";
             #; say "Auth RE: $re";
-            return if $msg->hostmask =~ /^$re$/;
+            return 1 if $msg->hostmask =~ /^$re$/;
         }
     }
 
-    return Freyr::Error->new(
+    die Freyr::Error->new(
         error => 'You are not authorized to perform this command',
         message => $msg,
     );
