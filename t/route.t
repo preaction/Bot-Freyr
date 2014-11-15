@@ -77,7 +77,82 @@ subtest 'basic routes' => sub {
             ok !$r->dispatch( $msg );
         };
     };
+};
 
+subtest 'placeholders' => sub {
+    subtest 'required placeholder' => sub {
+        my $r = Freyr::Route->new(
+            prefix => [ '!', qr{freyr[:,]} ],
+        );
+
+        $r->msg( 'greet :who' => sub {
+            my ( $msg, %params ) = @_;
+            return sprintf 'Hello, %s!', $params{who};
+        } );
+
+        subtest 'prefixed message with placeholder content' => sub {
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!greet Perl',
+            );
+            my $reply = $r->dispatch( $msg );
+            is $reply, 'Hello, Perl!';
+        };
+
+        subtest 'missing placeholder is not responded to' => sub {
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!greet',
+            );
+            ok !$r->dispatch( $msg );
+        };
+
+        subtest 'unprefixed message is not responded to' => sub {
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => 'greet Perl',
+            );
+            ok !$r->dispatch( $msg );
+        };
+
+    };
+    subtest 'optional placeholder' => sub {
+        my $r = Freyr::Route->new(
+            prefix => [ '!', qr{freyr[:,]} ],
+        );
+
+        $r->msg( 'greet :who?' => sub {
+            my ( $msg, %params ) = @_;
+            return sprintf 'Hello, %s!', $params{who} // "Stranger";
+        } );
+
+        subtest 'prefixed message with placeholder content' => sub {
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!greet Perl',
+            );
+            my $reply = $r->dispatch( $msg );
+            is $reply, 'Hello, Perl!';
+        };
+
+        subtest 'missing placeholder uses default value' => sub {
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!greet',
+            );
+            my $reply = $r->dispatch( $msg );
+            is $reply, 'Hello, Stranger!';
+        };
+
+        subtest 'unprefixed message is not responded to' => sub {
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => 'greet Perl',
+            );
+            ok !$r->dispatch( $msg );
+        };
+
+    };
 };
 
 subtest 'under router' => sub {

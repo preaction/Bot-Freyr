@@ -249,65 +249,6 @@ subtest 'message routing' => sub {
                 };
             };
 
-            subtest 'placeholders' => sub {
-                subtest 'required placeholder' => sub {
-                    $bot = Freyr->new(
-                        nick => 'freyr',
-                        host => 'irc.freenode.net',
-                        prefix => '!',
-                    );
-                    my $irc = $bot->network->irc;
-
-                    $bot->route( 'greet :who' => sub {
-                        subtest 'cb args' => $test_cb_args->( @_ );
-                        my ( $msg, %params ) = @_;
-                        return sprintf 'Hello, %s!', $params{who};
-                    } );
-
-                    subtest 'prefixed message with placeholder content' => test_irc_msg(
-                        $irc, ':preaction!doug@example.com PRIVMSG #defocus !greet Perl',
-                        like => qr{PRIVMSG \#defocus preaction: Hello, Perl!},
-                    );
-                    subtest 'missing placeholder is not responded to' => test_irc_msg(
-                        $irc, ':preaction!doug@example.com PRIVMSG #defocus !greet',
-                        unlike => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
-                    );
-                    subtest 'unprefixed message is not responded to' => test_irc_msg(
-                        $irc, ':preaction!doug@example.com PRIVMSG #defocus greet Perl',
-                        unlike => qr{PRIVMSG \#defocus preaction: Hello, Perl!},
-                    );
-                };
-
-                subtest 'optional placeholder' => sub {
-                    $bot = Freyr->new(
-                        nick => 'freyr',
-                        host => 'irc.freenode.net',
-                        prefix => '!',
-                    );
-                    my $irc = $bot->network->irc;
-
-                    $bot->route( 'greet :who?' => sub {
-                        subtest 'cb args' => $test_cb_args->( @_ );
-                        my ( $msg, %params ) = @_;
-                        return sprintf 'Hello, %s!', $params{who} // $msg->nick;
-                    } );
-
-                    subtest 'prefixed message with placeholder content' => test_irc_msg(
-                        $irc, ':preaction!doug@example.com PRIVMSG #defocus !greet Perl',
-                        like => qr{PRIVMSG \#defocus preaction: Hello, Perl!},
-                    );
-                    subtest 'prefixed message with default content' => test_irc_msg(
-                        $irc, ':preaction!doug@example.com PRIVMSG #defocus !greet',
-                        like => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
-                    );
-                    subtest 'unprefixed message is not responded to' => test_irc_msg(
-                        $irc, ':preaction!doug@example.com PRIVMSG #defocus greet Perl',
-                        unlike => qr{PRIVMSG \#defocus preaction: Hello, Perl!},
-                    );
-                };
-            };
-        };
-
         subtest 'under() routes' => sub {
             subtest 'prefixed messages' => sub {
                 $bot = Freyr->new(
