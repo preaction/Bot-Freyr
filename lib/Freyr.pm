@@ -192,15 +192,22 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
     }
     my $msg = Freyr::Message->new( %msg );
 
-    my $reply = $self->_route->dispatch( $msg );
+    my $reply = eval { $self->_route->dispatch( $msg ) };
+
+    if ( $@ ) {
+        if ( blessed $@ && $@->isa( 'Freyr::Error' ) ) {
+            $msg->network->irc->write( join " ", "PRIVMSG", $msg->nick, "ERROR:", $@->error );
+        }
+        else {
+            warn "Got error dispatching: $@";
+        }
+    }
+
     # Handle simple returned replies
     # Since Mojo::IRC->write() returns the Mojo::IRC object, make sure
     # we don't allow that as a response.
     if ( $reply ) {
-        if ( blessed $reply && $reply->isa( 'Freyr::Error' ) ) {
-            $msg->network->irc->write( join " ", "PRIVMSG", $msg->nick, "ERROR:", $reply->error );
-        }
-        elsif ( !( blessed $reply && $reply->isa( 'Mojo::IRC' ) ) ) {
+        if ( !( blessed $reply && $reply->isa( 'Mojo::IRC' ) ) ) {
             my @to;
             if ( $msg->channel ) {
                 @to = ( $msg->channel->name, $msg->nick . ":" );

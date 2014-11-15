@@ -152,8 +152,8 @@ subtest 'message routing' => sub {
             }
         };
 
-        subtest 'route matching' => sub {
-            subtest 'default is prefixed' => sub {
+        subtest 'bot routing' => sub {
+            subtest 'default prefixes' => sub {
                 $bot = Freyr->new(
                     nick => 'freyr',
                     host => 'irc.freenode.net',
@@ -168,7 +168,7 @@ subtest 'message routing' => sub {
                     return sprintf 'Hello, %s!', $msg->nick;
                 } );
 
-                subtest 'prefixed message is responded to' => test_irc_msg(
+                subtest 'prefix character (!)' => test_irc_msg(
                     $irc, ':preaction!doug@example.com PRIVMSG #defocus !greet',
                     like => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
                 );
@@ -192,149 +192,61 @@ subtest 'message routing' => sub {
                     $irc, ':preaction!doug@example.com PRIVMSG freyr greet',
                     like => qr{PRIVMSG preaction Hello, preaction!},
                 );
+
                 subtest 'unprefixed message is not responded to' => test_irc_msg(
                     $irc, ':preaction!doug@example.com PRIVMSG #defocus greet',
                     unlike => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
                 );
+
             };
 
-            subtest 'unprefixed routes' => sub {
-                $bot = Freyr->new(
-                    nick => 'freyr',
-                    host => 'irc.freenode.net',
-                    prefix => '!',
-                    channels => [qw( #defocus )],
-                );
-                my $irc = $bot->network->irc;
-
-                $bot->route( '/greet' => sub {
-                    subtest 'cb args' => $test_cb_args->( @_ );
-                    my ( $msg ) = @_;
-                    return sprintf 'Hello, %s!', $msg->nick;
-                } );
-
-                subtest 'unprefixed message is responded to' => test_irc_msg(
-                    $irc, ':preaction!doug@example.com PRIVMSG #defocus greet',
-                    like => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
-                );
-                subtest 'prefixed message does not match the route' => test_irc_msg(
-                    $irc, ':preaction!doug@example.com PRIVMSG #defocus !greet',
-                    unlike => qr{PRIVMSG \#defocus preaction: Hello, preaction!},
-                );
-                subtest 'private message is responded to' => test_irc_msg(
-                    $irc, ':preaction!doug@example.com PRIVMSG freyr greet',
-                    like => qr{PRIVMSG preaction Hello, preaction!},
-                );
-
-                subtest 'unprefixed route that matches our prefix' => sub {
-                    $bot->route( '/!bonjour' => sub {
-                        subtest 'cb args' => $test_cb_args->( @_ );
-                        my ( $msg ) = @_;
-                        return sprintf 'Freyr, %s!', $msg->nick;
-                    } );
-                    subtest 'unprefixed route with our prefix char matches' => test_irc_msg(
-                        $irc, ':preaction!doug@example.com PRIVMSG #defocus !bonjour',
-                        like => qr{PRIVMSG \#defocus preaction: Freyr, preaction!},
+            subtest 'route return values' => sub {
+                subtest 'route sends to irc directly' => sub {
+                    $bot = Freyr->new(
+                        nick => 'freyr',
+                        host => 'irc.freenode.net',
+                        prefix => '!',
+                        channels => [ '#defocus' ],
                     );
+                    my $irc = $bot->network->irc;
 
-                    $bot->route( '/freyr,' => sub {
-                        subtest 'cb args' => $test_cb_args->( @_ );
-                        my ( $msg ) = @_;
-                        return sprintf 'Freyr, hello %s!', $msg->nick;
+                    $bot->route->msg( 'say' => sub( $msg, % ) {
+                        # write() returns the Mojo::IRC object
+                        $msg->network->irc->write(
+                            PRIVMSG => $msg->channel->name, $msg->text,
+                        );
                     } );
-                    subtest 'unprefixed route with our name matches' => test_irc_msg(
-                        $irc, ':preaction!doug@example.com PRIVMSG #defocus freyr, hello',
-                        like => qr{PRIVMSG \#defocus preaction: Freyr, hello preaction!},
+
+                    subtest 'Mojo::IRC object is not displayed' => test_irc_msg(
+                        $irc, ':preaction!doug@example.com PRIVMSG #defocus !say Hello',
+                        like => qr{PRIVMSG \#defocus Hello},
+                        unlike => qr{Mojo::IRC},
                     );
                 };
-            };
 
-        subtest 'under() routes' => sub {
-            subtest 'prefixed messages' => sub {
-                $bot = Freyr->new(
-                    nick => 'freyr',
-                    host => 'irc.freenode.net',
-                    prefix => '!',
-                    channels => [qw( #defocus )],
-                );
-                my $irc = $bot->network->irc;
-
-                my $seen = 0;
-                $bot->route->under( '' => sub {
-                    subtest 'cb args' => $test_cb_args->( @_ );
-                    my ( $msg ) = @_;
-                    $seen++;
-                    return;
-                } );
-
-                $irc->{to_irc_server} = '';
-                $irc->from_irc_server( ':preaction!doug@example.com PRIVMSG #defocus !greet' . "\r\n" );
-                ok !$irc->{to_irc_server}, 'no response to prefixed message' or diag $irc->{to_irc_server};
-                $irc->{to_irc_server} = '';
-                $irc->from_irc_server( ':preaction!doug@example.com PRIVMSG #defocus greet' . "\r\n" );
-                ok !$irc->{to_irc_server}, 'no response to unprefixed message' or diag $irc->{to_irc_server};
-                $irc->{to_irc_server} = '';
-                $irc->from_irc_server( ':preaction!doug@example.com PRIVMSG freyr greet' . "\r\n" );
-                ok !$irc->{to_irc_server}, 'no response to private message' or diag $irc->{to_irc_server};
-                $irc->{to_irc_server} = '';
-                is $seen, 2, 'prefixed messages are seen';
-            };
-
-            subtest 'all messages' => sub {
-                $bot = Freyr->new(
-                    nick => 'freyr',
-                    host => 'irc.freenode.net',
-                    prefix => '!',
-                    channels => [qw( #defocus )],
-                );
-                my $irc = $bot->network->irc;
-
-                my $seen = 0;
-                $bot->route->under( '/' => sub {
-                    subtest 'cb args' => $test_cb_args->( @_ );
-                    my ( $msg ) = @_;
-                    $seen++;
-                    return;
-                } );
-
-                $irc->{to_irc_server} = '';
-                $irc->from_irc_server( ':preaction!doug@example.com PRIVMSG #defocus !greet' . "\r\n" );
-                ok !$irc->{to_irc_server}, 'no response to prefixed message' or diag $irc->{to_irc_server};
-                $irc->{to_irc_server} = '';
-                $irc->from_irc_server( ':preaction!doug@example.com PRIVMSG #defocus greet' . "\r\n" );
-                ok !$irc->{to_irc_server}, 'no response to unprefixed message' or diag $irc->{to_irc_server};
-                $irc->{to_irc_server} = '';
-                $irc->from_irc_server( ':preaction!doug@example.com PRIVMSG freyr greet' . "\r\n" );
-                ok !$irc->{to_irc_server}, 'no response to private message' or diag $irc->{to_irc_server};
-                $irc->{to_irc_server} = '';
-                is $seen, 3, 'all messages are seen';
-            };
-
-            subtest 'under errors' => sub {
-                $bot = Freyr->new(
-                    nick => 'freyr',
-                    host => 'irc.freenode.net',
-                    prefix => '!',
-                    channels => [ '#defocus' ],
-                );
-                my $irc = $bot->network->irc;
-
-                my $seen = 0;
-                $bot->route->under( 'error' => sub {
-                    subtest 'cb args' => $test_cb_args->( @_ );
-                    my ( $msg ) = @_;
-                    $seen++;
-                    return Freyr::Error->new(
-                        error => 'My error',
+                subtest 'under errors' => sub {
+                    $bot = Freyr->new(
+                        nick => 'freyr',
+                        host => 'irc.freenode.net',
+                        prefix => '!',
+                        channels => [ '#defocus' ],
                     );
-                } );
+                    my $irc = $bot->network->irc;
 
-                $irc->{to_irc_server} = '';
-                $irc->from_irc_server( ':preaction!doug@example.com PRIVMSG #defocus !error' . "\r\n" );
-                like $irc->{to_irc_server}, qr{PRIVMSG preaction ERROR: My error\r\n},
-                    'error message is displayed' or diag $irc->{to_irc_server};
+                    $bot->route->under( 'error' => sub {
+                        subtest 'cb args' => $test_cb_args->( @_ );
+                        die Freyr::Error->new(
+                            error => 'My error',
+                        );
+                    } );
+
+                    subtest 'error message is displayed' => test_irc_msg(
+                        $irc, ':preaction!doug@example.com PRIVMSG #defocus !error',
+                        like => qr{PRIVMSG preaction ERROR: My error},
+                    );
+                };
+
             };
-
         };
     };
 };
