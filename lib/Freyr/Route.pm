@@ -53,27 +53,6 @@ sub msg( $self, $route, $dest ) {
     $self->_routes->{ $route } = $dest;
 }
 
-=method under( ROUTE => DESTINATION )
-
-Add a callback to the entire bot. Unlike normal routes, unders do not need to
-be unique, and multiple unders may be called for a single message.
-
-Unders are called least-specific to most-specific, to allow unders to modify
-the routing chain.
-
-If an under returns a L<Freyr::Error>, all routing will stop. Any other return
-from an under is ignored.
-
-=cut
-
-sub under( $self, $route, $dest ) {
-    #; say "Adding under $route";
-    push $self->_unders->{ $route }->@*, $dest;
-    #; use Data::Dumper;
-    #; say Dumper $self->_unders;
-    return;
-}
-
 =method privmsg( ROUTE => DESTINATION )
 
 Register a route for all C<PRIVMSG> IRC messages.
@@ -84,17 +63,22 @@ sub privmsg( $self, $route, $dest ) {
     $self->_routes->{ "/$route" } = $dest;
 }
 
-=method child( ROUTE )
+=method under( ROUTE, [CALLBACK] )
 
 Create a child router at the given ROUTE. Returns a new L<Freyr::Route> object.
 
+If C<CALLBACK> is defined, the callback is called before routing. If the callback
+does not return a true value, routing is stopped. If the callback throws an exception,
+an error message is printed to the user.
+
 =cut
 
-sub child( $self, $route ) {
+sub under( $self, $route, $cb=sub { 1 } ) {
     my $router = Freyr::Route->new(
         ( map {; $_ => $self->$_ } qw( prefix ) ),
     );
     $self->_routes->{ $route } = $router;
+    $self->_unders->{ $route } = $cb;
     return $router;
 }
 
@@ -144,6 +128,13 @@ sub dispatch( $self, $msg ) {
                     # Reattach the prefix for the children
                     text => $prefix_text . $remain_text,
                 );
+
+                # Allow under to control access to the route
+                my $under = $self->_unders->{ $route };
+                #; say "Checking under $route";
+                return unless $under->( $out_msg, %params );
+
+                #; say "Under allows dispatching to $route";
                 $reply = $dest->dispatch( $out_msg );
             }
             elsif ( ref $dest eq 'CODE' ) {
@@ -162,22 +153,6 @@ sub dispatch( $self, $msg ) {
         return;
     };
 
-    # Unders are shortest (least-specific) to longest (most-specific) to allow
-    # for interruption of routing.
-    for my $route ( sort { length $a <=> length $b } keys $self->_unders->%* ) {
-        #; say "Checking under $route";
-        for my $dest ( $self->_unders->{ $route }->@* ) {
-            my $reply = $_route_cb->( $route, $msg, $dest );
-            if ( $reply ) {
-                if ( blessed $reply && $reply->isa( 'Freyr::Error' ) ) {
-                    return $reply;
-                }
-                else {
-                    warn "Got reply '$reply' from under '$route'. Ignoring...";
-                }
-            }
-        }
-    }
     for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
         my $dest = $self->_routes->{ $route };
         #; say "Trying $route -> $dest";

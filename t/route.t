@@ -77,140 +77,17 @@ subtest 'basic routes' => sub {
             ok !$r->dispatch( $msg );
         };
     };
+
 };
 
-subtest 'under routes' => sub {
-
-    subtest 'prefixed messages' => sub {
-        my $r = Freyr::Route->new(
-            prefix => [ '!', qr{freyr[:,]} ],
-        );
-        my $seen = 0;
-        $r->under( '' => sub { $seen++; return; } );
-
-        subtest 'string prefix' => sub {
-            my $msg = Freyr::Message->new(
-                @msg_args,
-                text => '!greet',
-            );
-            ok !$r->dispatch( $msg );
-            is $seen, 1;
-        };
-
-        subtest 'regex prefix' => sub {
-            my $msg = Freyr::Message->new(
-                @msg_args,
-                text => 'freyr: greet',
-            );
-            ok !$r->dispatch( $msg );
-            is $seen, 2;
-        };
-
-        subtest 'no prefix -> no destination' => sub {
-            my $msg = Freyr::Message->new(
-                @msg_args,
-                text => 'greet',
-            );
-            ok !$r->dispatch( $msg );
-            is $seen, 2;
-        };
-    };
-
-    subtest 'unprefixed messages' => sub {
-        my $r = Freyr::Route->new(
-            prefix => [ '!', qr{freyr[:,]} ],
-        );
-        my $seen = 0;
-        $r->under( '/' => sub { $seen++; return; } );
-
-        subtest 'no prefix' => sub {
-            my $msg = Freyr::Message->new(
-                @msg_args,
-                text => 'greet',
-            );
-            ok !$r->dispatch( $msg );
-            is $seen, 1;
-        };
-
-        subtest 'prefix still matches' => sub {
-            my $msg = Freyr::Message->new(
-                @msg_args,
-                text => '!greet',
-            );
-            ok !$r->dispatch( $msg );
-            is $seen, 2;
-        };
-    };
-
-    subtest 'stop routing' => sub {
-        my $r = Freyr::Route->new(
-            prefix => [ '!', qr{freyr[:,]} ],
-        );
-        my ( $shallow, $deep ) = ( 0, 0 );
-
-        $r->under( '' => sub ( $msg ) {
-            $shallow++;
-            if ( $msg->text =~ /shallow/ ) {
-                return Freyr::Error->new(
-                    message => $msg,
-                    error => "Shallow error!",
-                );
-            }
-        } );
-
-        $r->under( 'deep' => sub {
-            $deep++;
-            return Freyr::Error->new(
-                message => $_[0],
-                error => "Deep error!",
-            );
-        } );
-
-        subtest 'shallow error' => sub {
-            my $msg = Freyr::Message->new(
-                @msg_args,
-                text => '!shallow',
-            );
-            my $reply = $r->dispatch( $msg );
-            isa_ok $reply, 'Freyr::Error';
-            is $reply->error, 'Shallow error!';
-            is $shallow, 1, 'shallow was reached';
-            is $deep, 0, 'deep was not reached';
-        };
-
-        subtest 'deep error' => sub {
-            my $msg = Freyr::Message->new(
-                @msg_args,
-                text => '!deep',
-            );
-            my $reply = $r->dispatch( $msg );
-            isa_ok $reply, 'Freyr::Error';
-            is $reply->error, 'Deep error!';
-            is $shallow, 2, 'shallow was reached';
-            is $deep, 1, 'deep was reached';
-        };
-
-        subtest 'no error' => sub {
-            my $msg = Freyr::Message->new(
-                @msg_args,
-                text => '!foo',
-            );
-            ok !$r->dispatch( $msg );
-            is $shallow, 3, 'shallow was reached';
-            is $deep, 1, 'deep was not reached';
-        };
-
-    };
-};
-
-subtest 'child router' => sub {
+subtest 'under router' => sub {
 
     subtest 'prefixed message' => sub {
         my $root = Freyr::Route->new(
             prefix => [ '!', qr{freyr[:,]} ],
         );
         $root->msg( greet => sub { return "Hello!" } );
-        my $r = $root->child( 'fr' );
+        my $r = $root->under( 'fr' );
         $r->msg( greet => sub { return "Bonjour!" } );
         my ( $msg );
 
@@ -245,7 +122,7 @@ subtest 'child router' => sub {
             prefix => [ '!', qr{freyr[:,]} ],
         );
         $root->msg( greet => sub { return "Hello!" } );
-        my $r = $root->child( '/fr' );
+        my $r = $root->under( '/fr' );
         $r->privmsg( greet => sub { return "Bonjour!" } );
         my ( $msg );
 
@@ -266,6 +143,55 @@ subtest 'child router' => sub {
         };
     };
 
+    subtest 'stop routing' => sub {
+        my $r = Freyr::Route->new(
+            prefix => [ '!', qr{freyr[:,]} ],
+        );
+
+        my $deep = $r->under( 'deep' => sub {
+            die Freyr::Error->new(
+                message => $_[0],
+                error => "Deep error!",
+            ) if $_[0]->text =~ /error/;
+            return $_[0]->text =~ /safe/;
+        } );
+
+        my $hello = 0;
+        $deep->msg( 'hello' => sub { ++$hello } );
+
+        subtest 'callback returns false' => sub {
+            $hello = 0;
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!deep hello',
+            );
+            ok !$r->dispatch( $msg );
+            is $hello, 0, 'hello was not reached';
+        };
+
+        subtest 'callback returns true' => sub {
+            $hello = 0;
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!deep hello safe',
+            );
+            my $reply = $r->dispatch( $msg );
+            is $hello, 1, 'hello was reached';
+            is $reply, $hello, 'hello callback result returned';
+        };
+
+        subtest 'callback throws exception' => sub {
+            $hello = 0;
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!deep error',
+            );
+            throws_ok { $r->dispatch( $msg ) } 'Freyr::Error';
+            is $@->error, 'Deep error!';
+            is $hello, 0, 'hello was not reached';
+        };
+
+    };
 };
 
 done_testing;
