@@ -157,6 +157,29 @@ subtest 'placeholders' => sub {
 
 subtest 'under router' => sub {
 
+    subtest 'route tree' => sub {
+        my $root = Freyr::Route->new;
+        subtest 'root' => sub {
+            isa_ok $root, 'Freyr::Route';
+            ok !$root->parent;
+            ok !$root->root;
+        };
+
+        my $branch = $root->under( 'parent' );
+        subtest 'branch off the root' => sub {
+            isa_ok $branch, 'Freyr::Route';
+            is $branch->parent, $root;
+            is $branch->root, $root;
+        };
+
+        my $leaf = $branch->under( 'child' );
+        subtest 'leaf off the branch' => sub {
+            isa_ok $leaf, 'Freyr::Route';
+            is $leaf->parent, $branch;
+            is $leaf->root, $root;
+        };
+    };
+
     subtest 'prefixed message' => sub {
         my $root = Freyr::Route->new(
             prefix => [ '!', qr{freyr[:,]} ],

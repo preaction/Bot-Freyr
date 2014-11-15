@@ -16,6 +16,21 @@ has prefix => (
     default => sub { [] },
 );
 
+=attr parent
+
+The parent route, if any. This is set automatically by under().
+
+=attr root
+
+The highest-level parent, if any. This is set automatically by under().
+
+=cut
+
+has [qw( parent root )] => (
+    is => 'ro',
+    isa => Maybe[InstanceOf['Freyr::Route']],
+);
+
 =attr _routes
 
 The routes attached to this object.
@@ -76,6 +91,8 @@ an error message is printed to the user.
 sub under( $self, $route, $cb=sub { 1 } ) {
     my $router = Freyr::Route->new(
         ( map {; $_ => $self->$_ } qw( prefix ) ),
+        root => $self->root || $self,
+        parent => $self,
     );
     $self->_routes->{ $route } = $router;
     $self->_unders->{ $route } = $cb;
