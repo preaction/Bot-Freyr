@@ -2,7 +2,9 @@ package Freyr::Route;
 # ABSTRACT: A destination for a message
 
 use Freyr::Base 'Class';
+use Freyr::Event;
 use Scalar::Util qw( blessed );
+with 'Beam::Emitter';
 
 =attr prefix
 
@@ -170,13 +172,26 @@ sub dispatch( $self, $msg ) {
         return;
     };
 
+    my $event = $self->emit( before_dispatch => (
+        class => 'Freyr::Event::Message',
+        message => $msg,
+    ) );
+    return if $event->is_default_stopped;
+
+    my $reply;
     for my $route ( sort { length $b <=> length $a } keys $self->_routes->%* ) {
         my $dest = $self->_routes->{ $route };
         #; say "Trying $route -> $dest";
-        my $reply = $_route_cb->( $route, $msg, $dest );
-        return $reply if $reply;
+        $reply = $_route_cb->( $route, $msg, $dest );
+        last if $reply;
     }
-    return;
+
+    $self->emit( after_dispatch => (
+        class => 'Freyr::Event::Message',
+        message => $msg,
+    ) );
+
+    return $reply;
 }
 
 # Build a regex that matches the given route, capturing the placeholders
@@ -201,4 +216,14 @@ __END__
 =head2 Subroutine References
 
 A subref destination will get one argument, the L<Freyr::Message> being routed.
+
+=event before_dispatch
+
+Emitted before dispatch starts. If this event returns a false value, routing is
+stopped (much like L</under>).
+
+=event after_dispatch
+
+Emitted after dispatch has finished, whether or not a destination was found. If
+there was an exception, this event will not be emitted.
 

@@ -292,4 +292,116 @@ subtest 'under router' => sub {
     };
 };
 
+subtest 'routing events' => sub {
+    subtest 'before_dispatch' => sub {
+
+        subtest 'allows continuing' => sub {
+            my $r = Freyr::Route->new(
+                prefix => [ '!' ],
+            );
+
+            $r->msg( event => sub { return "EVENT" } );
+
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!event',
+            );
+
+            my $seen = 0;
+            $r->on( before_dispatch => sub ( $event ) {
+                $seen++;
+                isa_ok $event, 'Freyr::Event::Message';
+                is $event->message, $msg;
+            } );
+
+            my $reply = $r->dispatch( $msg );
+            is $reply, 'EVENT';
+            is $seen, 1;
+        };
+
+        subtest 'prevents further dispatch' => sub {
+            my $r = Freyr::Route->new(
+                prefix => [ '!' ],
+            );
+
+            $r->msg( event => sub { return "EVENT" } );
+
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!event',
+            );
+
+            my $seen = 0;
+            $r->on( before_dispatch => sub ( $event ) {
+                $seen++;
+                isa_ok $event, 'Freyr::Event::Message';
+                is $event->message, $msg;
+                $event->stop_default;
+            } );
+
+            ok !$r->dispatch( $msg );
+            is $seen, 1;
+        };
+    };
+
+    subtest 'after_dispatch' => sub {
+
+        subtest 'does not interrupt processing' => sub {
+            my $r = Freyr::Route->new(
+                prefix => [ '!' ],
+            );
+
+            $r->msg( event => sub { return "EVENT" } );
+
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!event',
+            );
+
+            my $seen = 0;
+            $r->on( after_dispatch => sub ( $event ) {
+                $seen++;
+                isa_ok $event, 'Freyr::Event::Message';
+                is $event->message, $msg;
+                $event->stop_default;
+            } );
+
+            is $r->dispatch( $msg ), "EVENT";
+            is $seen, 1;
+        };
+    };
+
+    subtest 'child route with events' => sub {
+        my @seen = ();
+        my $root = Freyr::Route->new( prefix => [ '!' ] );
+        $root->on( before_dispatch => sub { push @seen, [ before_dispatch => 'root' ] } );
+        $root->on( after_dispatch => sub { push @seen, [ after_dispatch => 'root' ] } );
+
+        my $branch = $root->under( 'parent' );
+        $branch->on( before_dispatch => sub { push @seen, [ before_dispatch => 'branch' ] } );
+        $branch->on( after_dispatch => sub { push @seen, [ after_dispatch => 'branch' ] } );
+
+        my $leaf = $branch->under( 'child' );
+        $leaf->on( before_dispatch => sub { push @seen, [ before_dispatch => 'leaf' ] } );
+        $leaf->on( after_dispatch => sub { push @seen, [ after_dispatch => 'leaf' ] } );
+        $leaf->msg( 'leaf' => sub { return "LEAF"; } );
+
+        my $msg = Freyr::Message->new(
+            @msg_args,
+            text => '!parent child leaf',
+        );
+
+        is $root->dispatch( $msg ), 'LEAF';
+        cmp_deeply \@seen, [
+            [ before_dispatch => 'root' ],
+            [ before_dispatch => 'branch' ],
+            [ before_dispatch => 'leaf' ],
+            [ after_dispatch => 'leaf' ],
+            [ after_dispatch => 'branch' ],
+            [ after_dispatch => 'root' ],
+        ] or diag explain \@seen;
+
+    };
+};
+
 done_testing;
