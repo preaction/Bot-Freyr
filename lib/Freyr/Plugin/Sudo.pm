@@ -3,6 +3,7 @@ package Freyr::Plugin::Sudo;
 
 use Freyr::Base 'Plugin';
 use Scalar::Util qw( blessed );
+use Freyr::Util qw( mask_match );
 use Freyr::Error;
 
 =attr users
@@ -58,12 +59,8 @@ Authorize the given message.
 
 sub authorize( $self, $msg ) {
     for my $user ( keys $self->users->%* ) {
-        for my $mask ( $self->users->{ $user }->@* ) {
-            # Split on *, allowing * at the end
-            my $re = join ".*", map { quotemeta $_ } split /\*/, $mask, -1;
-            #; say "Auth mask: $mask";
-            #; say "Auth RE: $re";
-            return 1 if $msg->hostmask =~ /^$re$/;
+        for my $match ( $self->users->{ $user }->@* ) {
+            return 1 if mask_match( $msg->hostmask, $match );
         }
     }
 
