@@ -13,11 +13,13 @@ our @IMPORT_MODULES = (
     'curry', 'curry::weak',
     '>experimental' => [qw( signatures postderef lexical_subs )],
     'Freyr',
+    'Path::Tiny' => [qw( path )],
 );
 
 # Optional bundles
 my @class_common = (
     'Types::Standard' => [qw( :all )],
+    'Types::Path::Tiny' => [qw( Path )],
 );
 
 our %IMPORT_BUNDLES = (
