@@ -8,7 +8,7 @@ use Freyr::Base 'Test';
     use Freyr::Base 'Plugin';
 
     sub register( $self, $r ) {
-        $r->msg( '' => sub {
+        $r->msg( sub {
             my ( $msg, %params ) = @_;
             return sprintf 'Hello, %s!', $msg->nick;
         } );

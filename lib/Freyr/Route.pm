@@ -64,9 +64,17 @@ being directly addressed, determined by the L</prefix> attribute.
 
 This is the most common kind of route.
 
+=method msg( DESTINATION )
+
+Register a default handler for all prefixed messages.
+
 =cut
 
-sub msg( $self, $route, $dest ) {
+sub msg( $self, $route, $dest=undef ) {
+    if ( !$dest ) {
+        $dest = $route;
+        $route = '';
+    }
     $self->_routes->{ $route } = $dest;
 }
 
@@ -74,10 +82,18 @@ sub msg( $self, $route, $dest ) {
 
 Register a route for all C<PRIVMSG> IRC messages.
 
+=method privmsg( DESTINATION )
+
+Register a default handler for all C<PRIVMSG> messages.
+
 =cut
 
-sub privmsg( $self, $route, $dest ) {
-    $self->_routes->{ "/$route" } = $dest;
+sub privmsg( $self, $route, $dest=undef ) {
+    if ( !$dest ) {
+        $dest = $route;
+        $route = '';
+    }
+    return $self->msg( "/$route", $dest );
 }
 
 =method under( ROUTE, [CALLBACK] )

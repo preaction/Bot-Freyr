@@ -5,7 +5,7 @@ use Freyr::Base 'Plugin';
 use Getopt::Long qw( GetOptionsFromString );
 
 sub register( $self, $route ) {
-    $route->msg( '' => $self->curry::weak::speak );
+    $route->msg( $self->curry::weak::speak );
 }
 
 sub speak( $self, $msg ) {

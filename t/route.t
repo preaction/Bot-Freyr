@@ -77,6 +77,50 @@ subtest 'basic routes' => sub {
             ok !$r->dispatch( $msg );
         };
     };
+
+    subtest 'default routes' => sub {
+        subtest 'prefix' => sub {
+            my $r = Freyr::Route->new(
+                prefix => [ '!' ],
+            );
+            $r->msg( sub { return "Hello!" } );
+            $r->msg( bye => sub { return 'Goodbye!' } );
+
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!bye',
+            );
+            is $r->dispatch( $msg ), 'Goodbye!';
+
+            $msg = Freyr::Message->new(
+                @msg_args,
+                text => '!hello',
+            );
+            is $r->dispatch( $msg ), 'Hello!';
+
+        };
+
+        subtest 'unprefix' => sub {
+            my $r = Freyr::Route->new(
+                prefix => [ '!' ],
+            );
+            $r->privmsg( sub { return "Hello!" } );
+            $r->privmsg( bye => sub { return 'Goodbye!' } );
+
+            my $msg = Freyr::Message->new(
+                @msg_args,
+                text => 'bye',
+            );
+            is $r->dispatch( $msg ), 'Goodbye!';
+
+            $msg = Freyr::Message->new(
+                @msg_args,
+                text => 'hello',
+            );
+            is $r->dispatch( $msg ), 'Hello!';
+
+        };
+    };
 };
 
 subtest 'placeholders' => sub {
