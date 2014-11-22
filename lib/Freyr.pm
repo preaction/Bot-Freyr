@@ -239,7 +239,27 @@ __END__
 
 =head1 SYNOPSIS
 
-    # TODO
+    use Freyr;
+    use Freyr::Plugin::Say;
+
+    my $bot = Freyr->new(
+        host => 'irc.perl.org',
+        channels => [ '#freyr' ],
+        nick => 'freyr',
+        prefix => '!',
+        plugins => {
+            say => Freyr::Plugin::Say->new,
+        },
+    );
+    $bot->start;
+
+    # In #freyr on irc.perl.org...
+    # -- Message addressed to the bot
+    # > freyr, say I'm a little teapot
+    # freyr> I'm a little teapot
+    # -- "prefix" message
+    # > !say Short and stout
+    # freyr> Short and stout
 
 =head1 DESCRIPTION
 
