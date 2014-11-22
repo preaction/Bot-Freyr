@@ -211,7 +211,7 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
             $msg->network->irc->write( join " ", "PRIVMSG", $msg->nick, "ERROR:", $@->error );
         }
         else {
-            warn "Got error dispatching: $@";
+            $self->log->warn( "Got error dispatching: $@" );
         }
     }
 

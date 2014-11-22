@@ -69,11 +69,15 @@ has irc => (
             user => 'freyr',
             server => join( ':', $self->host, $self->port ),
         );
-        $irc->on( close => sub { warn "CLOSED: " . join " ", @_ } );
-        $irc->on( error => sub { warn "IRC ERROR: " . join " ", @_ } );
-        $irc->on( irc_error => sub { warn "IRC ERROR: " . join " ", @_ } );
+        $irc->on( close => sub { $self->log->warn( "CLOSED:", @_ ) } );
+        $irc->on( error => sub { $self->log->warn( "IRC ERROR:", @_ ) } );
+        $irc->on( irc_error => sub { $self->log->warn( "IRC ERROR:", @_ ) } );
         $irc->connect( sub ( $irc, $err ) {
-            warn "CONNECT ERROR: $err" if $err;
+            if ( $err ) {
+                $self->log->error( "CONNECT ERROR:", $err );
+                return;
+            }
+
             $self->_connected( 1 );
             # Connect to all the channels we want
             # We must wait until we're connected before we can join channels
