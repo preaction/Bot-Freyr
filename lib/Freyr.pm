@@ -65,7 +65,7 @@ has network => (
         Freyr::Network->new(
             map {; $_ => $self->$_ }
             grep { defined $self->$_ }
-            qw( nick host port )
+            qw( nick host port log )
         );
     },
 );
@@ -93,6 +93,18 @@ has plugins => (
     is => 'ro',
     isa => HashRef[InstanceOf['Freyr::Plugin']],
     default => sub { {} },
+);
+
+=attr log
+
+The Mojo::Log object attached to this bot
+
+=cut
+
+has log => (
+    is => 'ro',
+    isa => InstanceOf['Mojo::Log'],
+    default => sub { Mojo::Log->new },
 );
 
 =attr ioloop

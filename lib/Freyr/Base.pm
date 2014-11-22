@@ -14,6 +14,7 @@ our @IMPORT_MODULES = (
     '>experimental' => [qw( signatures postderef lexical_subs )],
     'Freyr',
     'Path::Tiny' => [qw( path )],
+    'Mojo::Log',
 );
 
 # Optional bundles

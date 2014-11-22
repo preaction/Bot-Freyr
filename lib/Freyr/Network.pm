@@ -41,6 +41,18 @@ has port => (
     default => sub { 6667 },
 );
 
+=attr log
+
+The L<Mojo::Log> object for this network. This allows per-network logging.
+
+=cut
+
+has log => (
+    is => 'ro',
+    isa => InstanceOf['Mojo::Log'],
+    default => sub { Mojo::Log->new },
+);
+
 =attr irc
 
 The L<Mojo::IRC> object for this network connection

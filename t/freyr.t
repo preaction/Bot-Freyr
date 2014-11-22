@@ -5,6 +5,21 @@ use Freyr::Base 'Test';
 use Mojo::IOLoop;
 use Freyr::Error;
 
+subtest 'default attrs' => sub {
+    subtest 'log' => sub {
+        my $bot = Freyr->new(
+            nick => 'freyr',
+            host => 'irc.freenode.net',
+            prefix => '!',
+            channels => [ '#defocus' ],
+        );
+
+        my $log = $bot->log;
+        isa_ok $log, 'Mojo::Log';
+        is $log->handle, \*STDERR;
+    };
+};
+
 subtest 'connect to networks' => sub {
     subtest 'single network' => sub {
         my $bot = Freyr->new(
@@ -14,6 +29,7 @@ subtest 'connect to networks' => sub {
         my $net = $bot->network;
         isa_ok $bot->network, 'Freyr::Network';
         is $net->host, 'irc.freenode.net';
+        is $net->log, $bot->log, 'network gets same log object';
     };
 
     subtest 'network object created' => sub {
@@ -26,6 +42,7 @@ subtest 'connect to networks' => sub {
         my $net = $bot->network;
         isa_ok $bot->network, 'Freyr::Network';
         is $net->host, 'irc.freenode.net';
+        isnt $net->log, $bot->log, 'network gets own log object';
     };
 
     TODO: {
@@ -38,6 +55,7 @@ subtest 'connect to networks' => sub {
             my $net = $bot->network( freenode => 'irc.freenode.net' );
             isa_ok $net, 'Freyr::Network';
             is $net->nick, $bot->nick;
+            is $net->log, $bot->log, 'network gets same log object';
         };
 
         subtest 'connect options' => sub {
@@ -51,6 +69,7 @@ subtest 'connect to networks' => sub {
             } );
             isa_ok $net, 'Freyr::Network';
             is $net->nick, 'freyr_';
+            is $net->log, $bot->log, 'network gets same log object';
         };
 
         subtest 'default networks' => sub {
@@ -69,6 +88,7 @@ subtest 'connect to networks' => sub {
                 my $net = $bot->network( 'freenode' );
                 isa_ok $net, 'Freyr::Network';
                 is $net->host, 'irc.freenode.net';
+                is $net->log, $bot->log, 'network gets same log object';
             };
 
             subtest 'connect options' => sub {
@@ -76,6 +96,7 @@ subtest 'connect to networks' => sub {
                 isa_ok $net, 'Freyr::Network';
                 is $net->host, 'irc.perl.org';
                 is $net->port, '6667';
+                is $net->log, $bot->log, 'network gets same log object';
             };
         };
     };
