@@ -12,7 +12,27 @@ version 0.001
 
 # SYNOPSIS
 
-    # TODO
+    use Freyr;
+    use Freyr::Plugin::Say;
+
+    my $bot = Freyr->new(
+        host => 'irc.perl.org',
+        channels => [ '#freyr' ],
+        nick => 'freyr',
+        prefix => '!',
+        plugins => {
+            say => Freyr::Plugin::Say->new,
+        },
+    );
+    $bot->start;
+
+    # In #freyr on irc.perl.org...
+    # -- Message addressed to the bot
+    # > freyr, say I'm a little teapot
+    # freyr> I'm a little teapot
+    # -- "prefix" message
+    # > !say Short and stout
+    # freyr> Short and stout
 
 # DESCRIPTION
 
@@ -46,15 +66,20 @@ The channel names to connect to in single-network mode.
 
 ## plugins
 
-The plugins to attach to this bot, keyed by name.
+The plugins to attach to this bot, keyed by route. The plugin will be
+registered with the given route.
 
-## \_routes
+## log
 
-The routes for the entire bot.
+The Mojo::Log object attached to this bot
 
-## \_unders
+## ioloop
 
-The unders for the entire bot.
+The Mojo::IOLoop the bot should use.
+
+## \_route
+
+The [Freyr::Route](https://metacpan.org/pod/Freyr::Route) for the entire bot.
 
 # METHODS
 
@@ -66,15 +91,10 @@ Initialize the network in single-network mode.
 
 Get a [channel](https://metacpan.org/pod/Freyr::Channel) object, joining the channel if necessary.
 
-## route( SPEC => SUB )
+## route( ROUTE => DEST )
 
 Add a route to the entire bot. Routes must be unique. Only one route will be triggered
 for every message.
-
-## under( SPEC => SUB )
-
-Add a callback to the entire bot. Unlike [route](https://metacpan.org/pod/route), unders do not need to be
-unique, and multiple unders may be called for a single message.
 
 ## \_route\_message( NETWORK, MESSAGE )
 

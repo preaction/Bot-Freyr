@@ -1,6 +1,40 @@
 Changelog for Freyr
 
-0.001 2014-11-06T06:18:01
+0.001 2014-11-22T20:07:07
+ - add a bot synopsis for documentation
+ - add log attribute to bot and networks
+ - add ignore plugin
+ - move mask matching to a utility module
+ - allow a default route that always matches
+ - add before/after dispatch events
+ - add accessors for parent and root router
+ - update plugins for new under() API
+ - handle exceptions from routing
+ - move placeholder tests to the other route tests
+ - change under() to be more like Mojolicious
+ - add sudo plugin for authentication/authorization
+ - allow multiple tests per irc message
+ - add method to clone messages
+ - add full hostmask to message objects
+ - show the error message in private message
+ - add some whitespace to improve navigation
+ - allow under to stop routing
+ - register plugins with routes not bots
+ - add new route object to allow child routes
+ - add simple !quit command
+ - add ioloop to the bot object
+ - add missing ABSTRACTs
+ - add docs to the say plugin
+ - move basic irc message test into common module
+ - stop Mojo::IRC method chain from sending reply
+ - make sure to use sub signatures
+ - add say plugin to sample bot script
+ - add prefix to sample bot script
+ - add say plugin to get the bot to speak
+ - only give the text remaining after the route
+ - automatically set @ISA when developing a plugin
+ - update build artifacts to fix POD errors
+ - fix weaver attribute command "attr"
  - make sure all our subs use signatures
  - make sure experimental warnings are turned off
  - add basic plugin class

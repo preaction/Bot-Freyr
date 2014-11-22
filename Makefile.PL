@@ -27,12 +27,17 @@ my %WriteMakefileArgs = (
   "MIN_PERL_VERSION" => "5.020",
   "NAME" => "Freyr",
   "PREREQ_PM" => {
+    "Beam::Emitter" => 0,
     "DBM::Deep" => 0,
     "Import::Base" => "0.009",
+    "List::Util" => "1.29",
     "Mojo::IRC" => 0,
     "Mojolicious" => 0,
     "Moo::Lax" => 0,
+    "Path::Tiny" => 0,
+    "Sub::Exporter" => 0,
     "Type::Tiny" => 0,
+    "Types::Path::Tiny" => 0,
     "curry" => 0,
     "experimental" => 0,
     "strict" => 0,
@@ -47,25 +52,30 @@ my %WriteMakefileArgs = (
   },
   "VERSION" => "0.001",
   "test" => {
-    "TESTS" => "t/*.t"
+    "TESTS" => "t/*.t t/plugin/*.t"
   }
 );
 
 
 my %FallbackPrereqs = (
+  "Beam::Emitter" => 0,
   "DBM::Deep" => 0,
   "ExtUtils::MakeMaker" => 0,
   "Import::Base" => "0.009",
+  "List::Util" => "1.29",
   "Module::Build" => "0.28",
   "Mojo::IRC" => 0,
   "Mojolicious" => 0,
   "Moo::Lax" => 0,
+  "Path::Tiny" => 0,
+  "Sub::Exporter" => 0,
   "Test::Compile" => 0,
   "Test::Deep" => 0,
   "Test::Differences" => 0,
   "Test::Exception" => 0,
   "Test::More" => 0,
   "Type::Tiny" => 0,
+  "Types::Path::Tiny" => 0,
   "curry" => 0,
   "experimental" => 0,
   "strict" => 0,
