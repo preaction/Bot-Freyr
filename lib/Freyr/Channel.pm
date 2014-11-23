@@ -30,6 +30,20 @@ has network => (
 1;
 __END__
 
+=head1 SYNOPSIS
+
+    my $net = Freyr::Network->new(
+        nick => 'freyr',
+        host => 'irc.freenode.net',
+    );
+
+    my $chan = Freyr::Channel->new(
+        name => '#defocus',
+        network => $net,
+    );
+
+    my $chan = $net->channel( '#defocus' );
+
 =head1 DESCRIPTION
 
 This module encapsulates a single channel's information.

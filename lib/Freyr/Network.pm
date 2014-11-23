@@ -135,6 +135,16 @@ sub channel( $self, $name ) {
 1;
 __END__
 
+=head1 SYNOPSIS
+
+    my $net = Freyr::Network->new(
+        nick => 'freyr',
+        host => 'irc.freenode.net',
+        port => 6667,
+    );
+
+    my $chan = $net->channel( '#defocus' );
+
 =head1 DESCRIPTION
 
 This class encapsulates a single IRC connection.
