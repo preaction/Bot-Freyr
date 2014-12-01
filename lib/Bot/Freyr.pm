@@ -1,11 +1,11 @@
-package Freyr;
+package Bot::Freyr;
 # ABSTRACT: IRC bot with multi-network and web API
 
-use Freyr::Base 'Class';
+use Bot::Freyr::Base 'Class';
 use Scalar::Util qw( blessed );
-use Freyr::Network;
-use Freyr::Message;
-use Freyr::Route;
+use Bot::Freyr::Network;
+use Bot::Freyr::Message;
+use Bot::Freyr::Route;
 
 =attr nick
 
@@ -53,16 +53,16 @@ has port => (
 
 =attr network
 
-The L<network|Freyr::Network> the bot is currently connected to.
+The L<network|Bot::Freyr::Network> the bot is currently connected to.
 
 =cut
 
 has network => (
     is => 'rw',
-    isa => InstanceOf['Freyr::Network'],
+    isa => InstanceOf['Bot::Freyr::Network'],
     lazy => 1,
     default => sub ( $self ) {
-        Freyr::Network->new(
+        Bot::Freyr::Network->new(
             map {; $_ => $self->$_ }
             grep { defined $self->$_ }
             qw( nick host port log )
@@ -91,7 +91,7 @@ registered with the given route.
 
 has plugins => (
     is => 'ro',
-    isa => HashRef[InstanceOf['Freyr::Plugin']],
+    isa => HashRef[InstanceOf['Bot::Freyr::Plugin']],
     default => sub { {} },
 );
 
@@ -122,17 +122,17 @@ has ioloop => (
 
 =attr _route
 
-The L<Freyr::Route> for the entire bot.
+The L<Bot::Freyr::Route> for the entire bot.
 
 =cut
 
 has _route => (
     is => 'ro',
-    isa => InstanceOf['Freyr::Route'],
+    isa => InstanceOf['Bot::Freyr::Route'],
     lazy => 1,
     default => sub ( $self ) {
         my $nick = $self->nick;
-        Freyr::Route->new(
+        Bot::Freyr::Route->new(
             prefix => [
                 $self->prefix,
                 qr{$nick[:,\s]},
@@ -160,7 +160,7 @@ sub BUILD( $self, @ ) {
 
 =method channel( NAME )
 
-Get a L<channel|Freyr::Channel> object, joining the channel if necessary.
+Get a L<channel|Bot::Freyr::Channel> object, joining the channel if necessary.
 
 =cut
 
@@ -202,12 +202,12 @@ sub _route_message( $self, $network, $irc, $irc_msg ) {
     if ( $to =~ /^\#/ ) {
         $msg{ channel } = $network->channel( $to );
     }
-    my $msg = Freyr::Message->new( %msg );
+    my $msg = Bot::Freyr::Message->new( %msg );
 
     my $reply = eval { $self->_route->dispatch( $msg ) };
 
     if ( $@ ) {
-        if ( blessed $@ && $@->isa( 'Freyr::Error' ) ) {
+        if ( blessed $@ && $@->isa( 'Bot::Freyr::Error' ) ) {
             $msg->network->irc->write( join " ", "PRIVMSG", $msg->nick, "ERROR:", $@->error );
         }
         else {
@@ -239,16 +239,16 @@ __END__
 
 =head1 SYNOPSIS
 
-    use Freyr;
-    use Freyr::Plugin::Say;
+    use Bot::Freyr;
+    use Bot::Freyr::Plugin::Say;
 
-    my $bot = Freyr->new(
+    my $bot = Bot::Freyr->new(
         host => 'irc.perl.org',
         channels => [ '#freyr' ],
         nick => 'freyr',
         prefix => '!',
         plugins => {
-            say => Freyr::Plugin::Say->new,
+            say => Bot::Freyr::Plugin::Say->new,
         },
     );
     $bot->start;
@@ -263,4 +263,4 @@ __END__
 
 =head1 DESCRIPTION
 
-Freyr is an IRC bot designed for multiple networks and a web interface.
+Bot::Freyr is an IRC bot designed for multiple networks and a web interface.

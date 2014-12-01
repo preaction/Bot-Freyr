@@ -1,8 +1,8 @@
-package Freyr::Route;
+package Bot::Freyr::Route;
 # ABSTRACT: A destination for a message
 
-use Freyr::Base 'Class';
-use Freyr::Event;
+use Bot::Freyr::Base 'Class';
+use Bot::Freyr::Event;
 use Scalar::Util qw( blessed );
 with 'Beam::Emitter';
 
@@ -30,7 +30,7 @@ The highest-level parent, if any. This is set automatically by under().
 
 has [qw( parent root )] => (
     is => 'ro',
-    isa => Maybe[InstanceOf['Freyr::Route']],
+    isa => Maybe[InstanceOf['Bot::Freyr::Route']],
 );
 
 =attr _routes
@@ -41,7 +41,7 @@ The routes attached to this object.
 
 has _routes => (
     is => 'ro',
-    isa => HashRef[CodeRef|InstanceOf['Freyr::Route']],
+    isa => HashRef[CodeRef|InstanceOf['Bot::Freyr::Route']],
     default => sub { {} },
 );
 
@@ -98,7 +98,7 @@ sub privmsg( $self, $route, $dest=undef ) {
 
 =method under( ROUTE, [CALLBACK] )
 
-Create a child router at the given ROUTE. Returns a new L<Freyr::Route> object.
+Create a child router at the given ROUTE. Returns a new L<Bot::Freyr::Route> object.
 
 If C<CALLBACK> is defined, the callback is called before routing. If the callback
 does not return a true value, routing is stopped. If the callback throws an exception,
@@ -107,7 +107,7 @@ an error message is printed to the user.
 =cut
 
 sub under( $self, $route, $cb=sub { 1 } ) {
-    my $router = Freyr::Route->new(
+    my $router = Bot::Freyr::Route->new(
         ( map {; $_ => $self->$_ } qw( prefix ) ),
         root => $self->root || $self,
         parent => $self,
@@ -157,7 +157,7 @@ sub dispatch( $self, $msg ) {
             my %params = %+;
             my $reply;
 
-            if ( blessed $dest && $dest->isa( 'Freyr::Route' ) ) {
+            if ( blessed $dest && $dest->isa( 'Bot::Freyr::Route' ) ) {
                 #; say "Going down with: ${prefix_text}${remain_text}";
                 my $out_msg = $in_msg->clone(
                     # Reattach the prefix for the children
@@ -189,7 +189,7 @@ sub dispatch( $self, $msg ) {
     };
 
     my $event = $self->emit( before_dispatch => (
-        class => 'Freyr::Event::Message',
+        class => 'Bot::Freyr::Event::Message',
         message => $msg,
     ) );
     return if $event->is_default_stopped;
@@ -203,7 +203,7 @@ sub dispatch( $self, $msg ) {
     }
 
     $self->emit( after_dispatch => (
-        class => 'Freyr::Event::Message',
+        class => 'Bot::Freyr::Event::Message',
         message => $msg,
     ) );
 
@@ -231,7 +231,7 @@ __END__
 
 =head2 Subroutine References
 
-A subref destination will get one argument, the L<Freyr::Message> being routed.
+A subref destination will get one argument, the L<Bot::Freyr::Message> being routed.
 
 =event before_dispatch
 

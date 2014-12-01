@@ -1,11 +1,11 @@
 
 # Do not connect to live servers during testing
 BEGIN { $ENV{ MOJO_IRC_OFFLINE } = 1 };
-use Freyr::Base 'Test';
+use Bot::Freyr::Base 'Test';
 
 {
-    package Test::Freyr::Plugin;
-    use Freyr::Base 'Plugin';
+    package Test::Bot::Freyr::Plugin;
+    use Bot::Freyr::Base 'Plugin';
 
     sub register( $self, $r ) {
         $r->msg( sub {
@@ -21,7 +21,7 @@ subtest 'basic plugin' => sub {
     my $test_cb_args = sub {
         my ( $self, $msg, %params ) = @_;
         return sub {
-            isa_ok $msg, 'Freyr::Message';
+            isa_ok $msg, 'Bot::Freyr::Message';
             is $msg->bot, $bot;
             if ( $msg->channel ) {
                 is $msg->channel, $bot->channel( '#defocus' );
@@ -31,8 +31,8 @@ subtest 'basic plugin' => sub {
         }
     };
 
-    $plugin = Test::Freyr::Plugin->new;
-    $bot = Freyr->new(
+    $plugin = Test::Bot::Freyr::Plugin->new;
+    $bot = Bot::Freyr->new(
         nick => 'freyr',
         prefix => '!',
         host => 'irc.freenode.net',

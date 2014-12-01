@@ -1,42 +1,42 @@
-package Freyr::Message;
+package Bot::Freyr::Message;
 # ABSTRACT: An incoming message
 
-use Freyr::Base 'Class';
+use Bot::Freyr::Base 'Class';
 
 =attr bot
 
-The L<bot|Freyr> that received this message.
+The L<bot|Bot::Freyr> that received this message.
 
 =cut
 
 has bot => (
     is => 'ro',
-    isa => InstanceOf['Freyr'],
+    isa => InstanceOf['Bot::Freyr'],
     required => 1,
 );
 
 =attr network
 
-The L<network|Freyr::Network> this message was received via.
+The L<network|Bot::Freyr::Network> this message was received via.
 
 =cut
 
 has network => (
     is => 'ro',
-    isa => InstanceOf['Freyr::Network'],
+    isa => InstanceOf['Bot::Freyr::Network'],
     required => 1,
 );
 
 
 =attr channel
 
-The L<channel|Freyr::Channel> this message was received on, if any.
+The L<channel|Bot::Freyr::Channel> this message was received on, if any.
 
 =cut
 
 has channel => (
     is => 'ro',
-    isa => InstanceOf['Freyr::Channel'],
+    isa => InstanceOf['Bot::Freyr::Channel'],
 );
 
 =attr nick

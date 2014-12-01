@@ -1,7 +1,7 @@
-package Freyr::Test;
-# ABSTRACT: Test functions for Freyr
+package Bot::Freyr::Test;
+# ABSTRACT: Test functions for Bot::Freyr
 
-use Freyr::Base 'Test';
+use Bot::Freyr::Base 'Test';
 use List::Util qw( pairs );
 use Sub::Exporter -setup => {
     exports => [qw( test_irc_msg )],
@@ -54,7 +54,7 @@ sub test_irc_msg( $irc, $send, @tests ) {
 
 =head1 SYNOPSIS
 
-    use Freyr::Base 'Test';
+    use Bot::Freyr::Base 'Test';
     subtest 'test a message' => test_irc_msg(
         $irc, ':preaction!user@host PRIVMSG freyr Hello!',
         like => qr{PRIVMSG preaction Hello, preaction!},

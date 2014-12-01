@@ -2,10 +2,10 @@
 package freyr;
 # ABSTRACT: A sample script to connect to IRC and do nothing
 
-use Freyr::Base;
+use Bot::Freyr::Base;
 use Getopt::Long qw( GetOptionsFromArray );
 
-use Freyr::Plugin::Say;
+use Bot::Freyr::Plugin::Say;
 
 my %opt = (
     nick => 'freyr',
@@ -14,13 +14,13 @@ GetOptionsFromArray( \@ARGV, \%opt,
     'nick|n=s',
 );
 
-my $bot = Freyr->new(
+my $bot = Bot::Freyr->new(
     nick => $opt{nick},
     prefix => '!',
     host => $ARGV[0],
     channels => [ @ARGV[1..$#ARGV] ],
     plugins => {
-        say => Freyr::Plugin::Say->new,
+        say => Bot::Freyr::Plugin::Say->new,
     },
 );
 

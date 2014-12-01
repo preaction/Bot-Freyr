@@ -1,5 +1,5 @@
-package Freyr::Base;
-# ABSTRACT: Base bundles for Freyr IRC bot
+package Bot::Freyr::Base;
+# ABSTRACT: Base bundles for Bot::Freyr IRC bot
 
 use strict;
 use warnings;
@@ -12,7 +12,7 @@ our @IMPORT_MODULES = (
     'feature' => [qw( :5.20 )],
     'curry', 'curry::weak',
     '>experimental' => [qw( signatures postderef lexical_subs )],
-    'Freyr',
+    'Bot::Freyr',
     'Path::Tiny' => [qw( path )],
     'Mojo::Log',
 );
@@ -26,7 +26,7 @@ my @class_common = (
 our %IMPORT_BUNDLES = (
     Test => [
         qw( Test::More Test::Deep Test::Differences Test::Exception ),
-        'Freyr::Test' => [qw( test_irc_msg )],
+        'Bot::Freyr::Test' => [qw( test_irc_msg )],
     ],
     Class => [
         '<Moo::Lax',
@@ -42,8 +42,8 @@ our %IMPORT_BUNDLES = (
         sub {
             my ( $bundles, $args ) = @_;
             no strict 'refs';
-            require Freyr::Plugin;
-            push @{ $args->{package} . "::ISA" }, 'Freyr::Plugin';
+            require Bot::Freyr::Plugin;
+            push @{ $args->{package} . "::ISA" }, 'Bot::Freyr::Plugin';
             return;
         },
     ],
@@ -55,21 +55,21 @@ __END__
 =head1 SYNOPSIS
 
     package MyModule;
-    use Freyr::Base;
+    use Bot::Freyr::Base;
 
-    use Freyr::Base 'Class';
-    use Freyr::Base 'Role';
-    use Freyr::Base 'Test';
+    use Bot::Freyr::Base 'Class';
+    use Bot::Freyr::Base 'Role';
+    use Bot::Freyr::Base 'Test';
 
 =head1 DESCRIPTION
 
-This is the base module that all Freyr files should use.
+This is the base module that all Bot::Freyr files should use.
 
 This module always imports the following into your namespace:
 
 =over
 
-=item L<Freyr>
+=item L<Bot::Freyr>
 
 The base module is imported to make sure that L<File::Share> can find the right
 share directory.

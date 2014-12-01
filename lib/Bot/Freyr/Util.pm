@@ -1,7 +1,7 @@
-package Freyr::Util;
-# ABSTRACT: Useful utilities for Freyr
+package Bot::Freyr::Util;
+# ABSTRACT: Useful utilities for Bot::Freyr
 
-use Freyr::Base;
+use Bot::Freyr::Base;
 use Sub::Exporter -setup => {
     exports => [qw( mask_match )],
 };

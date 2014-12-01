@@ -1,11 +1,11 @@
-package Freyr::Plugin;
-# ABSTRACT: Base class for Freyr plugins
+package Bot::Freyr::Plugin;
+# ABSTRACT: Base class for Bot::Freyr plugins
 
-use Freyr::Base 'Class';
+use Bot::Freyr::Base 'Class';
 
 =method register( ROUTE )
 
-Register this plugin with the given L<Freyr::Route|route>. This method should
+Register this plugin with the given L<Bot::Freyr::Route|route>. This method should
 set up routes and unders.
 
 =cut
@@ -17,15 +17,15 @@ sub register( $self, $route ) { ... }
 =head1 SYNOPSIS
 
     package My::Plugin;
-    use Freyr 'Class';
-    extends 'Freyr::Plugin';
+    use Bot::Freyr 'Class';
+    extends 'Bot::Freyr::Plugin';
     sub register( $self, $route ) {
         $route->msg( ... );
         $route->under( ... );
     }
 
     package main;
-    my $bot = Freyr->new(
+    my $bot = Bot::Freyr->new(
         plugins => {
             my_plugin => My::Plugin->new,
         },

@@ -1,9 +1,9 @@
-package Freyr::Network;
+package Bot::Freyr::Network;
 # ABSTRACT: A single IRC network connection
 
-use Freyr::Base 'Class';
+use Bot::Freyr::Base 'Class';
 use Mojo::IRC;
-use Freyr::Channel;
+use Bot::Freyr::Channel;
 
 =attr nick
 
@@ -97,7 +97,7 @@ A hashref of the currently-joined channels
 
 has _channels => (
     is => 'ro',
-    isa => HashRef[ InstanceOf['Freyr::Channel'] ],
+    isa => HashRef[ InstanceOf['Bot::Freyr::Channel'] ],
     default => sub { {} },
 );
 
@@ -115,7 +115,7 @@ has _connected => (
 
 =method channel( NAME )
 
-Get the L<channel|Freyr::Channel> with the given name, joining it if necessary.
+Get the L<channel|Bot::Freyr::Channel> with the given name, joining it if necessary.
 
 =cut
 
@@ -123,7 +123,7 @@ sub channel( $self, $name ) {
     my $channel = $self->_channels->{ $name };
     if ( !$channel ) {
         $channel = $self->_channels->{ $name }
-            = Freyr::Channel->new( name => $name, network => $self );
+            = Bot::Freyr::Channel->new( name => $name, network => $self );
         my $irc = $self->irc; # connect to IRC
         if ( $self->_connected ) {
             $irc->write( JOIN => $name );
@@ -137,7 +137,7 @@ __END__
 
 =head1 SYNOPSIS
 
-    my $net = Freyr::Network->new(
+    my $net = Bot::Freyr::Network->new(
         nick => 'freyr',
         host => 'irc.freenode.net',
         port => 6667,

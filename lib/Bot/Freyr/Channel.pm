@@ -1,7 +1,7 @@
-package Freyr::Channel;
+package Bot::Freyr::Channel;
 # ABSTRACT: A single connected IRC channel
 
-use Freyr::Base 'Class';
+use Bot::Freyr::Base 'Class';
 
 =attr name
 
@@ -17,13 +17,13 @@ has name => (
 
 =attr network
 
-The L<network|Freyr::Network> this channel is on.
+The L<network|Bot::Freyr::Network> this channel is on.
 
 =cut
 
 has network => (
     is => 'ro',
-    isa => InstanceOf['Freyr::Network'],
+    isa => InstanceOf['Bot::Freyr::Network'],
     required => 1,
 );
 
@@ -32,12 +32,12 @@ __END__
 
 =head1 SYNOPSIS
 
-    my $net = Freyr::Network->new(
+    my $net = Bot::Freyr::Network->new(
         nick => 'freyr',
         host => 'irc.freenode.net',
     );
 
-    my $chan = Freyr::Channel->new(
+    my $chan = Bot::Freyr::Channel->new(
         name => '#defocus',
         network => $net,
     );

@@ -1,9 +1,9 @@
 
 # Do not connect to live servers during testing
 BEGIN { $ENV{ MOJO_IRC_OFFLINE } = 1 };
-use Freyr::Base 'Test';
+use Bot::Freyr::Base 'Test';
 use Path::Tiny qw( tempfile );
-use Freyr::Plugin::Ignore;
+use Bot::Freyr::Plugin::Ignore;
 
 sub test_ignore {
     my ( $mask, $match ) = @_;
@@ -11,11 +11,11 @@ sub test_ignore {
 
     return sub {
 
-        my $ignore = Freyr::Plugin::Ignore->new(
+        my $ignore = Bot::Freyr::Plugin::Ignore->new(
             database => tempfile(),
         );
 
-        my $bot = Freyr->new(
+        my $bot = Bot::Freyr->new(
             nick => 'freyr',
             prefix => '!',
             host => 'irc.freenode.net',

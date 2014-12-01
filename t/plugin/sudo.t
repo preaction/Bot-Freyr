@@ -1,12 +1,12 @@
 
 # Do not connect to live servers during testing
 BEGIN { $ENV{ MOJO_IRC_OFFLINE } = 1 };
-use Freyr::Base 'Test';
-use Freyr::Plugin::Sudo;
-use Freyr::Plugin::Say;
+use Bot::Freyr::Base 'Test';
+use Bot::Freyr::Plugin::Sudo;
+use Bot::Freyr::Plugin::Say;
 
-my $say = Freyr::Plugin::Say->new;
-my $sudo = Freyr::Plugin::Sudo->new(
+my $say = Bot::Freyr::Plugin::Say->new;
+my $sudo = Bot::Freyr::Plugin::Sudo->new(
     users => {
         preaction => [
             'preaction!doug@*',
@@ -22,7 +22,7 @@ my $sudo = Freyr::Plugin::Sudo->new(
         },
     },
 );
-my $bot = Freyr->new(
+my $bot = Bot::Freyr->new(
     nick => 'freyr',
     prefix => '!',
     host => 'irc.freenode.net',

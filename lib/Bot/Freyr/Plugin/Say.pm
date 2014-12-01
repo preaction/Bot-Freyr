@@ -1,7 +1,7 @@
-package Freyr::Plugin::Say;
+package Bot::Freyr::Plugin::Say;
 # ABSTRACT: Make the bot talk
 
-use Freyr::Base 'Plugin';
+use Bot::Freyr::Base 'Plugin';
 use Getopt::Long qw( GetOptionsFromString );
 
 sub register( $self, $route ) {
@@ -22,13 +22,13 @@ sub speak( $self, $msg ) {
 
 =head1 SYNOPSIS
 
-    use Freyr;
-    use Freyr::Plugin::Say;
+    use Bot::Freyr;
+    use Bot::Freyr::Plugin::Say;
 
-    my $plugin = Freyr::Plugin::Say->new;
+    my $plugin = Bot::Freyr::Plugin::Say->new;
 
     # Create a bot with our plugin
-    my $bot = Freyr->new(
+    my $bot = Bot::Freyr->new(
         nick => 'freyr',
         prefix => '!',
         host => 'irc.freenode.net',

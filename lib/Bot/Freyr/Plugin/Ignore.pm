@@ -1,8 +1,8 @@
-package Freyr::Plugin::Ignore;
+package Bot::Freyr::Plugin::Ignore;
 # ABSTRACT: Make the bot ignore people
 
-use Freyr::Base 'Plugin';
-use Freyr::Util qw( mask_match );
+use Bot::Freyr::Base 'Plugin';
+use Bot::Freyr::Util qw( mask_match );
 use DBM::Deep;
 
 =attr database
@@ -52,13 +52,13 @@ sub ignore( $self, $msg ) {
 
 =head1 SYNOPSIS
 
-    use Freyr;
-    use Freyr::Plugin::Ignore;
+    use Bot::Freyr;
+    use Bot::Freyr::Plugin::Ignore;
 
-    my $plugin = Freyr::Plugin::Ignore->new;
+    my $plugin = Bot::Freyr::Plugin::Ignore->new;
 
     # Create a bot with our plugin
-    my $bot = Freyr->new(
+    my $bot = Bot::Freyr->new(
         nick => 'freyr',
         prefix => '!',
         host => 'irc.freenode.net',

@@ -1,7 +1,7 @@
-package Freyr::Error;
+package Bot::Freyr::Error;
 # ABSTRACT: An error response, which stops routing
 
-use Freyr::Base 'Class';
+use Bot::Freyr::Base 'Class';
 
 =attr error
 
@@ -23,7 +23,7 @@ The message that caused the error.
 
 has message => (
     is => 'ro',
-    isa => InstanceOf['Freyr::Message'],
+    isa => InstanceOf['Bot::Freyr::Message'],
 );
 
 1;
@@ -31,7 +31,7 @@ __END__
 
 =head1 SYNOPSIS
 
-    my $err = Freyr::Error->new(
+    my $err = Bot::Freyr::Error->new(
         error => 'An error occurred',
         message => $msg,
     );

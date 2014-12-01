@@ -1,12 +1,12 @@
 
 # Do not connect to live servers during testing
 BEGIN { $ENV{ MOJO_IRC_OFFLINE } = 1 };
-use Freyr::Base 'Test';
-use Freyr::Route;
-use Freyr::Message;
-use Freyr::Error;
+use Bot::Freyr::Base 'Test';
+use Bot::Freyr::Route;
+use Bot::Freyr::Message;
+use Bot::Freyr::Error;
 
-my $bot = Freyr->new(
+my $bot = Bot::Freyr->new(
     nick => 'freyr',
     host => 'irc.freenode.net',
     channels => [ '#defocus' ],
@@ -23,14 +23,14 @@ my @msg_args = (
 subtest 'basic routes' => sub {
 
     subtest 'prefixed/addressed message' => sub {
-        my $r = Freyr::Route->new(
+        my $r = Bot::Freyr::Route->new(
             prefix => [ '!', qr{freyr[:,]} ],
         );
         $r->msg( greet => sub { return "Hello!" } );
         my ( $msg );
 
         subtest 'string prefix' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!greet',
             );
@@ -38,7 +38,7 @@ subtest 'basic routes' => sub {
         };
 
         subtest 'regex prefix' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'freyr: greet',
             );
@@ -46,7 +46,7 @@ subtest 'basic routes' => sub {
         };
 
         subtest 'no prefix -> no response' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'greet',
             );
@@ -55,14 +55,14 @@ subtest 'basic routes' => sub {
     };
 
     subtest 'unprefixed message' => sub {
-        my $r = Freyr::Route->new(
+        my $r = Bot::Freyr::Route->new(
             prefix => [ '!', qr{freyr[:,]} ],
         );
         $r->privmsg( greet => sub { return "Hello!" } );
         my ( $msg );
 
         subtest 'without prefix' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'greet',
             );
@@ -70,7 +70,7 @@ subtest 'basic routes' => sub {
         };
 
         subtest 'with prefix -> no response' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!greet',
             );
@@ -80,19 +80,19 @@ subtest 'basic routes' => sub {
 
     subtest 'default routes' => sub {
         subtest 'prefix' => sub {
-            my $r = Freyr::Route->new(
+            my $r = Bot::Freyr::Route->new(
                 prefix => [ '!' ],
             );
             $r->msg( sub { return "Hello!" } );
             $r->msg( bye => sub { return 'Goodbye!' } );
 
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!bye',
             );
             is $r->dispatch( $msg ), 'Goodbye!';
 
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!hello',
             );
@@ -101,19 +101,19 @@ subtest 'basic routes' => sub {
         };
 
         subtest 'unprefix' => sub {
-            my $r = Freyr::Route->new(
+            my $r = Bot::Freyr::Route->new(
                 prefix => [ '!' ],
             );
             $r->privmsg( sub { return "Hello!" } );
             $r->privmsg( bye => sub { return 'Goodbye!' } );
 
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'bye',
             );
             is $r->dispatch( $msg ), 'Goodbye!';
 
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'hello',
             );
@@ -125,7 +125,7 @@ subtest 'basic routes' => sub {
 
 subtest 'placeholders' => sub {
     subtest 'required placeholder' => sub {
-        my $r = Freyr::Route->new(
+        my $r = Bot::Freyr::Route->new(
             prefix => [ '!', qr{freyr[:,]} ],
         );
 
@@ -135,7 +135,7 @@ subtest 'placeholders' => sub {
         } );
 
         subtest 'prefixed message with placeholder content' => sub {
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!greet Perl',
             );
@@ -144,7 +144,7 @@ subtest 'placeholders' => sub {
         };
 
         subtest 'missing placeholder is not responded to' => sub {
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!greet',
             );
@@ -152,7 +152,7 @@ subtest 'placeholders' => sub {
         };
 
         subtest 'unprefixed message is not responded to' => sub {
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'greet Perl',
             );
@@ -161,7 +161,7 @@ subtest 'placeholders' => sub {
 
     };
     subtest 'optional placeholder' => sub {
-        my $r = Freyr::Route->new(
+        my $r = Bot::Freyr::Route->new(
             prefix => [ '!', qr{freyr[:,]} ],
         );
 
@@ -171,7 +171,7 @@ subtest 'placeholders' => sub {
         } );
 
         subtest 'prefixed message with placeholder content' => sub {
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!greet Perl',
             );
@@ -180,7 +180,7 @@ subtest 'placeholders' => sub {
         };
 
         subtest 'missing placeholder uses default value' => sub {
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!greet',
             );
@@ -189,7 +189,7 @@ subtest 'placeholders' => sub {
         };
 
         subtest 'unprefixed message is not responded to' => sub {
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'greet Perl',
             );
@@ -202,30 +202,30 @@ subtest 'placeholders' => sub {
 subtest 'under router' => sub {
 
     subtest 'route tree' => sub {
-        my $root = Freyr::Route->new;
+        my $root = Bot::Freyr::Route->new;
         subtest 'root' => sub {
-            isa_ok $root, 'Freyr::Route';
+            isa_ok $root, 'Bot::Freyr::Route';
             ok !$root->parent;
             ok !$root->root;
         };
 
         my $branch = $root->under( 'parent' );
         subtest 'branch off the root' => sub {
-            isa_ok $branch, 'Freyr::Route';
+            isa_ok $branch, 'Bot::Freyr::Route';
             is $branch->parent, $root;
             is $branch->root, $root;
         };
 
         my $leaf = $branch->under( 'child' );
         subtest 'leaf off the branch' => sub {
-            isa_ok $leaf, 'Freyr::Route';
+            isa_ok $leaf, 'Bot::Freyr::Route';
             is $leaf->parent, $branch;
             is $leaf->root, $root;
         };
     };
 
     subtest 'prefixed message' => sub {
-        my $root = Freyr::Route->new(
+        my $root = Bot::Freyr::Route->new(
             prefix => [ '!', qr{freyr[:,]} ],
         );
         $root->msg( greet => sub { return "Hello!" } );
@@ -234,7 +234,7 @@ subtest 'under router' => sub {
         my ( $msg );
 
         subtest 'string prefix' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!fr greet',
             );
@@ -242,7 +242,7 @@ subtest 'under router' => sub {
         };
 
         subtest 'regex prefix' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'freyr: fr greet',
             );
@@ -250,7 +250,7 @@ subtest 'under router' => sub {
         };
 
         subtest 'no prefix -> no response' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'fr greet',
             );
@@ -260,7 +260,7 @@ subtest 'under router' => sub {
 
 
     subtest 'unprefixed message' => sub {
-        my $root = Freyr::Route->new(
+        my $root = Bot::Freyr::Route->new(
             prefix => [ '!', qr{freyr[:,]} ],
         );
         $root->msg( greet => sub { return "Hello!" } );
@@ -269,7 +269,7 @@ subtest 'under router' => sub {
         my ( $msg );
 
         subtest 'without prefix' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => 'fr greet',
             );
@@ -277,7 +277,7 @@ subtest 'under router' => sub {
         };
 
         subtest 'with prefix -> no response' => sub {
-            $msg = Freyr::Message->new(
+            $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!fr greet',
             );
@@ -286,12 +286,12 @@ subtest 'under router' => sub {
     };
 
     subtest 'stop routing' => sub {
-        my $r = Freyr::Route->new(
+        my $r = Bot::Freyr::Route->new(
             prefix => [ '!', qr{freyr[:,]} ],
         );
 
         my $deep = $r->under( 'deep' => sub {
-            die Freyr::Error->new(
+            die Bot::Freyr::Error->new(
                 message => $_[0],
                 error => "Deep error!",
             ) if $_[0]->text =~ /error/;
@@ -303,7 +303,7 @@ subtest 'under router' => sub {
 
         subtest 'callback returns false' => sub {
             $hello = 0;
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!deep hello',
             );
@@ -313,7 +313,7 @@ subtest 'under router' => sub {
 
         subtest 'callback returns true' => sub {
             $hello = 0;
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!deep hello safe',
             );
@@ -324,11 +324,11 @@ subtest 'under router' => sub {
 
         subtest 'callback throws exception' => sub {
             $hello = 0;
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!deep error',
             );
-            throws_ok { $r->dispatch( $msg ) } 'Freyr::Error';
+            throws_ok { $r->dispatch( $msg ) } 'Bot::Freyr::Error';
             is $@->error, 'Deep error!';
             is $hello, 0, 'hello was not reached';
         };
@@ -340,13 +340,13 @@ subtest 'routing events' => sub {
     subtest 'before_dispatch' => sub {
 
         subtest 'allows continuing' => sub {
-            my $r = Freyr::Route->new(
+            my $r = Bot::Freyr::Route->new(
                 prefix => [ '!' ],
             );
 
             $r->msg( event => sub { return "EVENT" } );
 
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!event',
             );
@@ -354,7 +354,7 @@ subtest 'routing events' => sub {
             my $seen = 0;
             $r->on( before_dispatch => sub ( $event ) {
                 $seen++;
-                isa_ok $event, 'Freyr::Event::Message';
+                isa_ok $event, 'Bot::Freyr::Event::Message';
                 is $event->message, $msg;
             } );
 
@@ -364,13 +364,13 @@ subtest 'routing events' => sub {
         };
 
         subtest 'prevents further dispatch' => sub {
-            my $r = Freyr::Route->new(
+            my $r = Bot::Freyr::Route->new(
                 prefix => [ '!' ],
             );
 
             $r->msg( event => sub { return "EVENT" } );
 
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!event',
             );
@@ -378,7 +378,7 @@ subtest 'routing events' => sub {
             my $seen = 0;
             $r->on( before_dispatch => sub ( $event ) {
                 $seen++;
-                isa_ok $event, 'Freyr::Event::Message';
+                isa_ok $event, 'Bot::Freyr::Event::Message';
                 is $event->message, $msg;
                 $event->stop_default;
             } );
@@ -391,13 +391,13 @@ subtest 'routing events' => sub {
     subtest 'after_dispatch' => sub {
 
         subtest 'does not interrupt processing' => sub {
-            my $r = Freyr::Route->new(
+            my $r = Bot::Freyr::Route->new(
                 prefix => [ '!' ],
             );
 
             $r->msg( event => sub { return "EVENT" } );
 
-            my $msg = Freyr::Message->new(
+            my $msg = Bot::Freyr::Message->new(
                 @msg_args,
                 text => '!event',
             );
@@ -405,7 +405,7 @@ subtest 'routing events' => sub {
             my $seen = 0;
             $r->on( after_dispatch => sub ( $event ) {
                 $seen++;
-                isa_ok $event, 'Freyr::Event::Message';
+                isa_ok $event, 'Bot::Freyr::Event::Message';
                 is $event->message, $msg;
                 $event->stop_default;
             } );
@@ -417,7 +417,7 @@ subtest 'routing events' => sub {
 
     subtest 'child route with events' => sub {
         my @seen = ();
-        my $root = Freyr::Route->new( prefix => [ '!' ] );
+        my $root = Bot::Freyr::Route->new( prefix => [ '!' ] );
         $root->on( before_dispatch => sub { push @seen, [ before_dispatch => 'root' ] } );
         $root->on( after_dispatch => sub { push @seen, [ after_dispatch => 'root' ] } );
 
@@ -430,7 +430,7 @@ subtest 'routing events' => sub {
         $leaf->on( after_dispatch => sub { push @seen, [ after_dispatch => 'leaf' ] } );
         $leaf->msg( 'leaf' => sub { return "LEAF"; } );
 
-        my $msg = Freyr::Message->new(
+        my $msg = Bot::Freyr::Message->new(
             @msg_args,
             text => '!parent child leaf',
         );

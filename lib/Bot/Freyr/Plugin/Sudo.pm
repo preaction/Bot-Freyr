@@ -1,10 +1,10 @@
-package Freyr::Plugin::Sudo;
+package Bot::Freyr::Plugin::Sudo;
 # ABSTRACT: A plugin for authenticating and authorizing other plugins
 
-use Freyr::Base 'Plugin';
+use Bot::Freyr::Base 'Plugin';
 use Scalar::Util qw( blessed );
-use Freyr::Util qw( mask_match );
-use Freyr::Error;
+use Bot::Freyr::Util qw( mask_match );
+use Bot::Freyr::Error;
 
 =attr users
 
@@ -28,7 +28,7 @@ use these plugins.
 
 has plugins => (
     is => 'ro',
-    isa => HashRef[CodeRef|InstanceOf['Freyr::Plugin']],
+    isa => HashRef[CodeRef|InstanceOf['Bot::Freyr::Plugin']],
     default => sub { {} },
 );
 
@@ -44,7 +44,7 @@ sub register( $self, $route ) {
         if ( ref $plugin eq 'CODE' ) {
             $route->msg( $plugin_route => $plugin );
         }
-        elsif ( blessed $plugin && $plugin->isa( 'Freyr::Plugin' ) ) {
+        elsif ( blessed $plugin && $plugin->isa( 'Bot::Freyr::Plugin' ) ) {
             my $r = $route->under( $plugin_route, $self->curry::weak::authorize );
             $plugin->register( $r );
         }
@@ -64,7 +64,7 @@ sub authorize( $self, $msg ) {
         }
     }
 
-    die Freyr::Error->new(
+    die Bot::Freyr::Error->new(
         error => 'You are not authorized to perform this command',
         message => $msg,
     );
@@ -74,22 +74,22 @@ sub authorize( $self, $msg ) {
 
 =head1 SYNOPSIS
 
-    use Freyr;
-    use Freyr::Plugin::Say;
-    use Freyr::Plugin::Sudo;
+    use Bot::Freyr;
+    use Bot::Freyr::Plugin::Say;
+    use Bot::Freyr::Plugin::Sudo;
 
-    my $sudo = Freyr::Plugin::Sudo->new(
+    my $sudo = Bot::Freyr::Plugin::Sudo->new(
         users => {
             preaction => [
                 'preaction!doug@example.com',
             ],
         },
         plugins => {
-            say => Freyr::Plugin::Say->new,
+            say => Bot::Freyr::Plugin::Say->new,
         },
     );
 
-    my $bot = Freyr->new(
+    my $bot = Bot::Freyr->new(
         host => 'irc.freenode.net',
         prefix => '!',
         channels => [ '#freyr' ],

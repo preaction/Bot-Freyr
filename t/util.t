@@ -1,6 +1,6 @@
 
-use Freyr::Base 'Test';
-use Freyr::Util qw( mask_match );
+use Bot::Freyr::Base 'Test';
+use Bot::Freyr::Util qw( mask_match );
 
 subtest mask_match => sub {
     my $mask = 'preaction!doug@example.com';
