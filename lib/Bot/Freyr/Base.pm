@@ -29,15 +29,15 @@ our %IMPORT_BUNDLES = (
         'Bot::Freyr::Test' => [qw( test_irc_msg )],
     ],
     Class => [
-        '<Moo::Lax',
+        '<Moo',
         @class_common,
     ],
     Role => [
-        '<Moo::Role::Lax',
+        '<Moo::Role',
         @class_common,
     ],
     Plugin => [
-        '<Moo::Lax',
+        '<Moo',
         @class_common,
         sub {
             my ( $bundles, $args ) = @_;
@@ -98,7 +98,7 @@ The class bundle makes your package into a class and includes:
 
 =over 4
 
-=item L<Moo::Lax>
+=item L<Moo>
 
 =item L<Types::Standard> ':all'
 
@@ -110,7 +110,7 @@ The role bundle makes your package into a role and includes:
 
 =over 4
 
-=item L<Moo::Role::Lax>
+=item L<Moo::Role>
 
 =item L<Types::Standard> ':all'
 
