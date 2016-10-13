@@ -1,4 +1,5 @@
 package Bot::Freyr::Test;
+our $VERSION = '0.001';
 # ABSTRACT: Test functions for Bot::Freyr
 
 use Bot::Freyr::Base 'Test';

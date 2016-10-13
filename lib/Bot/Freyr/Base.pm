@@ -1,4 +1,5 @@
 package Bot::Freyr::Base;
+our $VERSION = '0.001';
 # ABSTRACT: Base bundles for Bot::Freyr IRC bot
 
 use strict;

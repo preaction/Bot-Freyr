@@ -1,4 +1,5 @@
 package Bot::Freyr::Message;
+our $VERSION = '0.001';
 # ABSTRACT: An incoming message
 
 use Bot::Freyr::Base 'Class';

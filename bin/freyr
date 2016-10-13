@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 package freyr;
+our $VERSION = '0.001';
 # ABSTRACT: A sample script to connect to IRC and do nothing
 
 use Bot::Freyr::Base;

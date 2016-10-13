@@ -1,4 +1,5 @@
 package Bot::Freyr;
+our $VERSION = '0.001';
 # ABSTRACT: IRC bot with multi-network and web API
 
 use Bot::Freyr::Base 'Class';

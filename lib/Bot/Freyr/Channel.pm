@@ -1,4 +1,5 @@
 package Bot::Freyr::Channel;
+our $VERSION = '0.001';
 # ABSTRACT: A single connected IRC channel
 
 use Bot::Freyr::Base 'Class';

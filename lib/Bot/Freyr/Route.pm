@@ -1,4 +1,5 @@
 package Bot::Freyr::Route;
+our $VERSION = '0.001';
 # ABSTRACT: A destination for a message
 
 use Bot::Freyr::Base 'Class';

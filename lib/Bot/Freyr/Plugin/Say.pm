@@ -1,4 +1,5 @@
 package Bot::Freyr::Plugin::Say;
+our $VERSION = '0.001';
 # ABSTRACT: Make the bot talk
 
 use Bot::Freyr::Base 'Plugin';

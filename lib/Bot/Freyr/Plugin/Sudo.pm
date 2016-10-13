@@ -1,4 +1,5 @@
 package Bot::Freyr::Plugin::Sudo;
+our $VERSION = '0.001';
 # ABSTRACT: A plugin for authenticating and authorizing other plugins
 
 use Bot::Freyr::Base 'Plugin';

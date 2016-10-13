@@ -1,4 +1,5 @@
 package Bot::Freyr::Plugin::Ignore;
+our $VERSION = '0.001';
 # ABSTRACT: Make the bot ignore people
 
 use Bot::Freyr::Base 'Plugin';

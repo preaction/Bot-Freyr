@@ -1,4 +1,5 @@
 package Bot::Freyr::Plugin;
+our $VERSION = '0.001';
 # ABSTRACT: Base class for Bot::Freyr plugins
 
 use Bot::Freyr::Base 'Class';

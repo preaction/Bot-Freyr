@@ -1,4 +1,5 @@
 package Bot::Freyr::Util;
+our $VERSION = '0.001';
 # ABSTRACT: Useful utilities for Bot::Freyr
 
 use Bot::Freyr::Base;

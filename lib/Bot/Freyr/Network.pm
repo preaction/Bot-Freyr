@@ -1,4 +1,5 @@
 package Bot::Freyr::Network;
+our $VERSION = '0.001';
 # ABSTRACT: A single IRC network connection
 
 use Bot::Freyr::Base 'Class';

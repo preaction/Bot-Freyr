@@ -1,4 +1,5 @@
 package Bot::Freyr::Event;
+our $VERSION = '0.001';
 # ABSTRACT: Events for the Bot::Freyr bot
 
 package Bot::Freyr::Event::Message {

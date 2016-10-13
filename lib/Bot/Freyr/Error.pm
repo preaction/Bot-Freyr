@@ -1,4 +1,5 @@
 package Bot::Freyr::Error;
+our $VERSION = '0.001';
 # ABSTRACT: An error response, which stops routing
 
 use Bot::Freyr::Base 'Class';
