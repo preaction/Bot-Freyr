@@ -9,7 +9,7 @@ subtest 'default attrs' => sub {
     subtest 'log' => sub {
         my $bot = Bot::Freyr->new(
             nick => 'freyr',
-            host => 'irc.freenode.net',
+            server => 'irc.freenode.net:6667',
             prefix => '!',
             channels => [ '#defocus' ],
         );
@@ -24,11 +24,11 @@ subtest 'connect to networks' => sub {
     subtest 'single network' => sub {
         my $bot = Bot::Freyr->new(
             nick => 'freyr',
-            host => 'irc.freenode.net',
+            server => 'irc.freenode.net:6667',
         );
         my $net = $bot->network;
         isa_ok $bot->network, 'Bot::Freyr::Network';
-        is $net->host, 'irc.freenode.net';
+        is $net->server, 'irc.freenode.net:6667';
         is $net->log, $bot->log, 'network gets same log object';
     };
 
@@ -36,12 +36,12 @@ subtest 'connect to networks' => sub {
         my $bot = Bot::Freyr->new(
             network => Bot::Freyr::Network->new(
                 nick => 'freyr',
-                host => 'irc.freenode.net',
+                server => 'irc.freenode.net:6667',
             ),
         );
         my $net = $bot->network;
         isa_ok $bot->network, 'Bot::Freyr::Network';
-        is $net->host, 'irc.freenode.net';
+        is $net->server, 'irc.freenode.net:6667';
         isnt $net->log, $bot->log, 'network gets own log object';
     };
 
@@ -52,7 +52,7 @@ subtest 'connect to networks' => sub {
             my $bot = Bot::Freyr->new(
                 nick => 'freyr',
             );
-            my $net = $bot->network( freenode => 'irc.freenode.net' );
+            my $net = $bot->network( freenode => 'irc.freenode.net:6667' );
             isa_ok $net, 'Bot::Freyr::Network';
             is $net->nick, $bot->nick;
             is $net->log, $bot->log, 'network gets same log object';
@@ -63,8 +63,7 @@ subtest 'connect to networks' => sub {
                 nick => 'freyr',
             );
             my $net = $bot->network( freenode => {
-                host => 'irc.freenode.net',
-                port => '6667',
+                server => 'irc.freenode.net:6667',
                 nick => 'freyr_',
             } );
             isa_ok $net, 'Bot::Freyr::Network';
@@ -76,10 +75,10 @@ subtest 'connect to networks' => sub {
             my $bot = Bot::Freyr->new(
                 nick => 'freyr',
                 networks => {
-                    freenode => 'irc.freenode.net',
+                    freenode => 'irc.freenode.net:6667',
                     perl => {
-                        host => 'irc.perl.org',
-                        port => '6667',
+                        server => 'irc.perl.org:6667',
+                        nick => 'freyr_',
                     },
                 },
             );
@@ -87,15 +86,15 @@ subtest 'connect to networks' => sub {
             subtest 'simple connect' => sub {
                 my $net = $bot->network( 'freenode' );
                 isa_ok $net, 'Bot::Freyr::Network';
-                is $net->host, 'irc.freenode.net';
+                is $net->server, 'irc.freenode.net:6667';
                 is $net->log, $bot->log, 'network gets same log object';
             };
 
             subtest 'connect options' => sub {
                 my $net = $bot->network( 'perl' );
                 isa_ok $net, 'Bot::Freyr::Network';
-                is $net->host, 'irc.perl.org';
-                is $net->port, '6667';
+                is $net->server, 'irc.perl.org:6667';
+                is $net->nick, 'freyr_';
                 is $net->log, $bot->log, 'network gets same log object';
             };
         };
@@ -108,7 +107,7 @@ subtest 'join channels' => sub {
         subtest 'simple connect' => sub {
             my $bot = Bot::Freyr->new(
                 nick => 'freyr',
-                host => 'irc.freenode.net',
+                server => 'irc.freenode.net:6667',
             );
             my $irc = $bot->network->irc;
             like $irc->{to_irc_server}, qr{NICK freyr\r\n};
@@ -119,13 +118,13 @@ subtest 'join channels' => sub {
             isa_ok $chan, 'Bot::Freyr::Channel';
             is $chan->name, '#defocus';
             isa_ok $chan->network, 'Bot::Freyr::Network';
-            is $chan->network->host, 'irc.freenode.net';
+            is $chan->network->server, 'irc.freenode.net:6667';
         };
 
         subtest 'default channels' => sub {
             my $bot = Bot::Freyr->new(
                 nick => 'freyr',
-                host => 'irc.freenode.net',
+                server => 'irc.freenode.net:6667',
                 channels => [ '#defocus' ],
             );
             my $irc = $bot->network->irc;
@@ -137,7 +136,7 @@ subtest 'join channels' => sub {
             isa_ok $chan, 'Bot::Freyr::Channel';
             is $chan->name, '#defocus';
             isa_ok $chan->network, 'Bot::Freyr::Network';
-            is $chan->network->host, 'irc.freenode.net';
+            is $chan->network->server, 'irc.freenode.net:6667';
         };
     };
 
@@ -151,7 +150,7 @@ subtest 'join channels' => sub {
             my $net = $bot->network( 'irc.freenode.net' );
             my $chan = $net->channel( '#defocus' );
             isa_ok $chan, 'Bot::Freyr::Channel';
-            is $chan->network->host, $net->host;
+            is $chan->network->server, $net->server;
         };
     };
 };
@@ -177,7 +176,7 @@ subtest 'message routing' => sub {
             subtest 'default prefixes' => sub {
                 $bot = Bot::Freyr->new(
                     nick => 'freyr',
-                    host => 'irc.freenode.net',
+                    server => 'irc.freenode.net:6667',
                     prefix => '!',
                     channels => [qw( #defocus )],
                 );
@@ -225,7 +224,7 @@ subtest 'message routing' => sub {
                 subtest 'route sends to irc directly' => sub {
                     $bot = Bot::Freyr->new(
                         nick => 'freyr',
-                        host => 'irc.freenode.net',
+                        server => 'irc.freenode.net:6667',
                         prefix => '!',
                         channels => [ '#defocus' ],
                     );
@@ -248,7 +247,7 @@ subtest 'message routing' => sub {
                 subtest 'under errors' => sub {
                     $bot = Bot::Freyr->new(
                         nick => 'freyr',
-                        host => 'irc.freenode.net',
+                        server => 'irc.freenode.net:6667',
                         prefix => '!',
                         channels => [ '#defocus' ],
                     );
@@ -275,7 +274,7 @@ subtest 'message routing' => sub {
 subtest 'start/stop' => sub {
     my $bot = Bot::Freyr->new(
         nick => 'freyr',
-        host => 'irc.freenode.net',
+        server => 'irc.freenode.net:6667',
         prefix => '!',
         channels => [ '#defocus' ],
     );

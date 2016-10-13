@@ -27,6 +27,7 @@ my @class_common = (
 our %IMPORT_BUNDLES = (
     Test => [
         qw( Test::More Test::Deep Test::Differences Test::Exception ),
+        'Test::Mojo::IRC',
         'Bot::Freyr::Test' => [qw( test_irc_msg )],
     ],
     Class => [

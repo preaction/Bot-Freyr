@@ -18,28 +18,17 @@ has nick => (
     required => 1,
 );
 
-=attr host
+=attr server
 
-The hostname to connect to. Required.
+The server to connect to. A string containing C<host:port>, like
+C<irc.freenode.net:6667>.
 
 =cut
 
-has host => (
+has server => (
     is => 'ro',
     isa => Str,
     required => 1,
-);
-
-=attr port
-
-The port to connect to. Defaults to 6667.
-
-=cut
-
-has port => (
-    is => 'ro',
-    isa => Int,
-    default => sub { 6667 },
 );
 
 =attr log
@@ -68,7 +57,7 @@ has irc => (
         my $irc = Mojo::IRC->new(
             nick => $self->nick,
             user => 'freyr',
-            server => join( ':', $self->host, $self->port ),
+            server => $self->server,
         );
         $irc->on( close => sub { $self->log->warn( "CLOSED:", @_ ) } );
         $irc->on( error => sub { $self->log->warn( "IRC ERROR:", @_ ) } );
@@ -140,8 +129,7 @@ __END__
 
     my $net = Bot::Freyr::Network->new(
         nick => 'freyr',
-        host => 'irc.freenode.net',
-        port => 6667,
+        server => 'irc.freenode.net:6667',
     );
 
     my $chan = $net->channel( '#defocus' );

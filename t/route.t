@@ -8,7 +8,7 @@ use Bot::Freyr::Error;
 
 my $bot = Bot::Freyr->new(
     nick => 'freyr',
-    host => 'irc.freenode.net',
+    server => 'irc.freenode.net:6667',
     channels => [ '#defocus' ],
 );
 

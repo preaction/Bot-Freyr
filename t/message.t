@@ -7,7 +7,7 @@ use Bot::Freyr::Network;
 use Bot::Freyr::Channel;
 
 my $bot = Bot::Freyr->new(
-    host => 'irc.freenode.net',
+    server => 'irc.freenode.net:6667',
     nick => 'freyr',
 );
 

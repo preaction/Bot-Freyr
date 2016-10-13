@@ -18,7 +18,7 @@ sub test_ignore {
         my $bot = Bot::Freyr->new(
             nick => 'freyr',
             prefix => '!',
-            host => 'irc.freenode.net',
+            server => 'irc.freenode.net:6667',
             channels => [ '#defocus' ],
             plugins => {
                 ignore => $ignore,

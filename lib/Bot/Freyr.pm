@@ -30,26 +30,16 @@ has prefix => (
     isa => Str,
 );
 
-=attr host
+=attr server
 
-The default host to connect to in single-network mode.
+The default server to connect to in single-network mode. A string of
+C<host:port> like C<irc.freenode.net:6667>.
 
 =cut
 
-has host => (
+has server => (
     is => 'ro',
     isa => Str,
-);
-
-=attr port
-
-The default port to connect to in single-network mode.
-
-=cut
-
-has port => (
-    is => 'ro',
-    isa => Int,
 );
 
 =attr network
@@ -66,7 +56,7 @@ has network => (
         Bot::Freyr::Network->new(
             map {; $_ => $self->$_ }
             grep { defined $self->$_ }
-            qw( nick host port log )
+            qw( nick server log )
         );
     },
 );
